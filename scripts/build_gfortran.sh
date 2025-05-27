@@ -12,12 +12,15 @@ CONDA_BUILD_SUBDIR="osx-${native/x86_64/64/arm64/arm64}"
 type=$([[ "$arch" == "$native" ]] && echo native || echo cross)
 
 # ── create env & install compiler + runtime ───────────────────────
-CONDA_SUBDIR=$CONDA_BUILD_SUBDIR micromamba create -y -n gfortran-darwin-$arch-$type \
-       gfortran_impl_${CONDA_HOST_SUBDIR}=$ver \
-       libgfortran-devel_${CONDA_HOST_SUBDIR}=$ver
-CONDA_SUBDIR=$CONDA_HOST_SUBDIR micromamba install -y -n gfortran-darwin-$arch-$type \
+CONDA_SUBDIR=$CONDA_BUILD_SUBDIR micromamba create -n gfortran-darwin-$arch-$type -y \
+    gfortran_impl_${CONDA_HOST_SUBDIR}=$ver \
+    libgfortran-devel_${CONDA_HOST_SUBDIR}=$ver
+
+CONDA_SUBDIR=$CONDA_HOST_SUBDIR micromamba install -y -n \
+       gfortran-darwin-$arch-$type \
        libgfortran5=$ver
 
+       
 # ── inside the env: prune, patch, pack ────────────────────────────
 micromamba run -n gfortran-darwin-$arch-$type bash <<'EOF'
 set -euxo pipefail
