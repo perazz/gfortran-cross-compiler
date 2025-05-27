@@ -31,22 +31,42 @@ CONDA_SUBDIR=$CONDA_HOST_SUBDIR  micromamba install -y -n gfortran-darwin-$arch-
 
        
 # ── inside the env: prune, patch, pack ────────────────────────────
+# make arch and type part of the environment so the sub-shell can see them
+export arch type
+
 micromamba run -n "gfortran-darwin-$arch-$type" bash <<'EOF'
 set -euxo pipefail
-triplet=$(gfortran -dumpmachine)
-gcc_ver=$(gfortran -dumpfullversion)
-gcc_dir="$CONDA_PREFIX/libexec/gcc/$triplet/$gcc_ver"
 
-rm -rf $CONDA_PREFIX/lib/{libc++*,*.a,pkgconfig,clang}
-find $CONDA_PREFIX/lib -maxdepth 1 -name "libgfortran*.dylib" -exec mv {} "$gcc_dir" \;
-ln -sf /usr/bin/ld "$gcc_dir/ld" || true
-install_name_tool -change "$CONDA_PREFIX/lib/libgcc_s.1.1.dylib" '@rpath/libgcc_s.1.1.dylib' \
-                  "$CONDA_PREFIX/lib/libgcc_s.1.dylib" || true
+# ── discover paths dynamically ────────────────────────────────────────────
+triplet=\$(gfortran -dumpmachine)                # e.g. arm64-apple-darwin20.0.0
+gcc_ver=\$(gfortran -dumpfullversion)            # e.g. 14.2.0
+gcc_dir="\$CONDA_PREFIX/libexec/gcc/\$triplet/\$gcc_ver"
 
-pkg_name="gfortran-darwin-${triplet%%-*}-${triplet#*-*-}-cross"  # x86_64 or arm64
-pushd "$CONDA_PREFIX/.."
-tar -czf "${pkg_name}.tar.gz" "$pkg_name"
+# ── prune bulky/unused files ─────────────────────────────────────────────
+rm -rf "\$CONDA_PREFIX"/lib/{libc++*,*.a,pkgconfig,clang}
+
+# ── move runtime libs next to the compiler (needed only when cross) ──────
+if [[ "\$type" == "cross" ]]; then
+  mv "\$CONDA_PREFIX"/lib/{libgfortran*,libgomp*,libomp*,libgcc_s*,libquadmath*} "\$gcc_dir" || true
+fi
+
+# ── fix rpath for libgcc_s only if the file exists ───────────────────────
+if [[ -f "\$CONDA_PREFIX/lib/libgcc_s.1.dylib" ]]; then
+  install_name_tool -change "\$CONDA_PREFIX/lib/libgcc_s.1.1.dylib" \
+                    '@rpath/libgcc_s.1.1.dylib' \
+                    "\$CONDA_PREFIX/lib/libgcc_s.1.dylib" || true
+fi
+
+# ── package the entire environment ───────────────────────────────────────
+pkg_dir=\$(basename "\$CONDA_PREFIX")            # gfortran-darwin-arm64-native
+pushd "\$(dirname "\$CONDA_PREFIX")"
+tar -czf "\${pkg_dir}.tar.gz" "\$pkg_dir"
 popd
 EOF
+
+# move the tar-ball next to the script so upload-artifact can find it
+pkg_file=\$(basename "\$CONDA_PREFIX").tar.gz
+mv "\$(dirname "\$CONDA_PREFIX")/\$pkg_file" .
+
 
 mv "$HOME/micromamba/envs/gfortran-darwin-$arch-$type/../gfortran-darwin-$arch-$type.tar.gz" .
