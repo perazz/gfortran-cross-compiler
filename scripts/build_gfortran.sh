@@ -58,7 +58,7 @@ sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" $CONDA_PREFIX/lib/gcc/${arch}-apple-da
 rm $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
 mv $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1.bin $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
 pushd $CONDA_PREFIX/../
-grep -ir "isuruf" gfortran-darwin-${arch}-${type}/
+grep -ir "${GITHUB_ACTOR}" gfortran-darwin-${arch}-${type}/ || true
 tar -czf gfortran-darwin-${arch}-${type}.tar.gz gfortran-darwin-${arch}-${type}
 popd
 mv $CONDA_PREFIX/../gfortran-darwin-${arch}-${type}.tar.gz .
