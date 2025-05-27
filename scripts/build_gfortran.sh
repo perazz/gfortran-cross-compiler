@@ -24,14 +24,12 @@ else
 fi
 
 # build-arch packages
-export CONDA_SUBDIR=$CONDA_BUILD_SUBDIR
-mamba create -n gfortran-darwin-${arch}-${type} \
+CONDA_SUBDIR=$CONDA_BUILD_SUBDIR mamba create -n gfortran-darwin-${arch}-${type} \
   gfortran_impl_${CONDA_SUBDIR}=${ver} \
   libgfortran-devel_${CONDA_SUBDIR}=${ver} --yes
 
 # host-arch runtime
-export CONDA_SUBDIR=$CONDA_HOST_SUBDIR
-mamba install -n gfortran-darwin-${arch}-${type} \
+CONDA_SUBDIR=$CONDA_HOST_SUBDIR mamba install -n gfortran-darwin-${arch}-${type} \
   libgfortran5=${ver} --yes
 
 conda activate gfortran-darwin-${arch}-${type}
