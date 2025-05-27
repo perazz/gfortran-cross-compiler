@@ -61,7 +61,12 @@ execdir=$CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}
 mkdir -p "$execdir"                 # make sure it exists in cross builds
 ln -sf /usr/bin/ld "$execdir/ld"
 
-sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" $CONDA_PREFIX/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}/libgfortran.spec
+# delete the un-relocatable RPATH baked into libgfortran.spec (when present)
+specfile=$CONDA_PREFIX/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}/libgfortran.spec
+if [[ -f "$specfile" && ! -L "$specfile" ]]; then   # edit only regular files
+  sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" "$specfile"
+fi
+
 rm $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
 mv $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1.bin $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
 pushd $CONDA_PREFIX/../
