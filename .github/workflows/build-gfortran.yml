@@ -1,8 +1,5 @@
 name: build-gfortran-darwin
-
-env:
-  GCC_VER: 14.2.0         
-
+    
 on:
   workflow_dispatch:
   push:
