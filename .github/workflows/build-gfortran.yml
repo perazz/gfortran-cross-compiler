@@ -1,5 +1,8 @@
 name: build-gfortran-darwin
 
+env:
+  GCC_VER: 14.2.0         
+
 on:
   workflow_dispatch:
   push:
@@ -13,7 +16,7 @@ jobs:
       matrix:
         build_arch:  [x86_64, arm64]        # host CPU
         target_arch: [x86_64, arm64]        # toolchain target
-        gcc:         [14.2.0]
+        gcc:         [${{ env.GCC_VER }}]
     runs-on: ${{ matrix.build_arch == 'arm64' && 'macos-14' || 'macos-13' }}    
 
     steps:
@@ -40,3 +43,35 @@ jobs:
       with:
         name: gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}
         path: gfortran-darwin-${{ matrix.target_arch }}-*.tar.gz        
+
+  publish-release:
+    needs: [build]                 # wait for every build job to finish
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'     # skip on PRs
+
+    steps:
+    # 3-a: fetch every artefact those jobs produced
+    - name: Download build artefacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist                # everything ends up in ./dist/*
+
+    # 3-b: flatten the directory tree (download-artifact keeps job names)
+    - name: Flatten
+      run: |
+        find dist -name 'gfortran-*.tar.gz' -maxdepth 2 -exec mv {} . \;
+
+    # 3-c: create (or update) the Release and upload the tarballs
+    - name: Publish to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: gcc-${{ env.GCC_VER }}          # e.g.  gcc-14.2.0
+        name: "gfortran darwin ${{ env.GCC_VER }}"
+        body: |
+          Pre-built gfortran for macOS.
+          * arm64 (native + cross)
+          * x86_64 (native + cross)
+        files: gfortran-*.tar.gz                  # uploads all four
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # auto-generated
+        
