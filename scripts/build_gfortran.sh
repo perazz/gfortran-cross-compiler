@@ -67,7 +67,7 @@ if [[ -f "$specfile" && ! -L "$specfile" ]]; then   # edit only regular files
   sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" "$specfile"
 fi
 
-rm $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
+rm -f $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
 mv $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1.bin $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
 pushd $CONDA_PREFIX/../
 grep -ir "${GITHUB_ACTOR}" gfortran-darwin-${arch}-${type}/ || true
