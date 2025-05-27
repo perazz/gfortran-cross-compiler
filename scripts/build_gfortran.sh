@@ -67,12 +67,13 @@ if [[ -f "$specfile" && ! -L "$specfile" ]]; then   # edit only regular files
   sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" "$specfile"
 fi
 
-rm -f $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
+execdir=$CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}
 
-# replace the wrapper with the real binary (native builds only)
-bin_src=$CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1.bin
-bin_dst=$CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
-[[ -f $bin_src ]] && mv "$bin_src" "$bin_dst"
+# If this package shipped a wrapped pair, unwrap it; otherwise keep as-is
+if [[ -f "${execdir}/cc1.bin" ]]; then
+  rm -f  "${execdir}/cc1"          # wrapper (small text file)
+  mv     "${execdir}/cc1.bin" "${execdir}/cc1"
+fi
 
 pushd $CONDA_PREFIX/../
 grep -ir "${GITHUB_ACTOR}" gfortran-darwin-${arch}-${type}/ || true
