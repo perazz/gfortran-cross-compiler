@@ -31,10 +31,7 @@ jobs:
           *)     echo "Unknown runner.arch"; exit 1 ;;
         esac
 
-        bash scripts/build_gfortran.sh \
-          "${{ matrix.gcc }}"   \  # ver
-          "${{ matrix.arch }}"  \  # target arch
-          "${BUILD_ARCH}"          # build arch (detected)      
+        bash scripts/build_gfortran.sh ${{ matrix.gcc }} ${{ matrix.arch }} $BUILD_ARCH
       
     - name: Upload artefact
       uses: actions/upload-artifact@v4

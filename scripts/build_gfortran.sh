@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-ver=${1:-11.3.0}
-arch=${2:-x86_64}
-build=${3:-${arch}}
+# ── 1. Pick up values from either CLI *or* exported env vars ────────────────
+#    (The workflow already sets GFORTRAN_VERSION / TARGET_ARCH.)
+ver=${1:-${GFORTRAN_VERSION:-11.3.0}}
+arch=${2:-${TARGET_ARCH:-x86_64}}
+build=${3:-${BUILD_ARCH:-${arch}}}
 
 if [[ "$arch" == "x86_64" ]]; then
   export CONDA_HOST_SUBDIR="osx-64"
