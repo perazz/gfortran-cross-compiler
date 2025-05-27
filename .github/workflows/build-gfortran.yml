@@ -11,7 +11,7 @@ jobs:
       matrix:
         build_arch:  [x86_64, arm64]        # host CPU
         target_arch: [x86_64, arm64]        # toolchain target
-        gcc:         [${{ env.GCC_VER }}]
+        gcc:         [14.2.0]
     runs-on: ${{ matrix.build_arch == 'arm64' && 'macos-14' || 'macos-13' }}    
 
     steps:
