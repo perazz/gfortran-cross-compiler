@@ -55,7 +55,12 @@ if [[ "$type" == "cross" ]]; then
   mkdir -p "$dest"
   mv $CONDA_PREFIX/lib/{libgfortran*,libgomp*,libomp*,libgcc_s*} "$dest"
 fi
-ln -sf /usr/bin/ld $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/ld
+
+# point the compiler’s linker stub at the system ld
+execdir=$CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}
+mkdir -p "$execdir"                 # make sure it exists in cross builds
+ln -sf /usr/bin/ld "$execdir/ld"
+
 sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" $CONDA_PREFIX/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}/libgfortran.spec
 rm $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
 mv $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1.bin $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
@@ -64,3 +69,6 @@ grep -ir "${GITHUB_ACTOR}" gfortran-darwin-${arch}-${type}/ || true
 tar -czf gfortran-darwin-${arch}-${type}.tar.gz gfortran-darwin-${arch}-${type}
 popd
 mv $CONDA_PREFIX/../gfortran-darwin-${arch}-${type}.tar.gz .
+
+
+
