@@ -1,72 +1,47 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-# ── matrix inputs with sane fallbacks ──────────────────────────────
-ver="${GFORTRAN_VERSION:-14.2.0}"      # GCC release
-arch="${TARGET_ARCH:-x86_64}"          # target ISA
-native="$(uname -m)"                   # runner’s ISA
+ver=${1:-11.3.0}
+arch=${2:-x86_64}
+build=${3:-${arch}}
 
-# ── resolve conda sub-dirs ────────────────────────────────────────
-case "$arch" in
-  x86_64) CONDA_HOST_SUBDIR="osx-64" ;;
-  arm64)  CONDA_HOST_SUBDIR="osx-arm64" ;;
-  *)      echo "Unsupported arch: $arch" >&2; exit 1 ;;
-esac
-
-case "$(uname -m)" in
-  x86_64) CONDA_BUILD_SUBDIR="osx-64" ;;
-  arm64)  CONDA_BUILD_SUBDIR="osx-arm64" ;;
-  *)      echo "Unsupported build arch" >&2; exit 1 ;;
-esac
-type=$([[ "$arch" == "$native" ]] && echo native || echo cross)
-
-# ── create env & install compiler + runtime ───────────────────────
-CONDA_SUBDIR=$CONDA_BUILD_SUBDIR micromamba create -y -n gfortran-darwin-$arch-$type \
-        gfortran_impl_${CONDA_HOST_SUBDIR}=$ver \
-        libgfortran-devel_${CONDA_HOST_SUBDIR}=$ver
-
-CONDA_SUBDIR=$CONDA_HOST_SUBDIR  micromamba install -y -n gfortran-darwin-$arch-$type \
-        libgfortran5=$ver
-
-
-       
-# ── inside the env: prune, patch, pack ────────────────────────────
-# make arch and type part of the environment so the sub-shell can see them
-export arch type
-
-micromamba run -n "gfortran-darwin-$arch-$type" bash <<'EOF'
-set -euxo pipefail
-
-# ── discover paths dynamically ────────────────────────────────────────────
-triplet=\$(gfortran -dumpmachine)                # e.g. arm64-apple-darwin20.0.0
-gcc_ver=\$(gfortran -dumpfullversion)            # e.g. 14.2.0
-gcc_dir="\$CONDA_PREFIX/libexec/gcc/\$triplet/\$gcc_ver"
-
-# ── prune bulky/unused files ─────────────────────────────────────────────
-rm -rf "\$CONDA_PREFIX"/lib/{libc++*,*.a,pkgconfig,clang}
-
-# ── move runtime libs next to the compiler (needed only when cross) ──────
-if [[ "\$type" == "cross" ]]; then
-  mv "\$CONDA_PREFIX"/lib/{libgfortran*,libgomp*,libomp*,libgcc_s*,libquadmath*} "\$gcc_dir" || true
+if [[ "$arch" == "x86_64" ]]; then
+  export CONDA_HOST_SUBDIR="osx-64"
+  kern_ver=13.4.0
+else
+  export CONDA_HOST_SUBDIR="osx-arm64"
+  kern_ver=20.0.0
 fi
-
-# ── fix rpath for libgcc_s only if the file exists ───────────────────────
-if [[ -f "\$CONDA_PREFIX/lib/libgcc_s.1.dylib" ]]; then
-  install_name_tool -change "\$CONDA_PREFIX/lib/libgcc_s.1.1.dylib" \
-                    '@rpath/libgcc_s.1.1.dylib' \
-                    "\$CONDA_PREFIX/lib/libgcc_s.1.dylib" || true
+if [[ "$build" == "x86_64" ]]; then
+  export CONDA_BUILD_SUBDIR="osx-64"
+else
+  export CONDA_BUILD_SUBDIR="osx-arm64"
 fi
-
-# ── package the entire environment ───────────────────────────────────────
-pkg_dir=\$(basename "\$CONDA_PREFIX")            # gfortran-darwin-arm64-native
-pushd "\$(dirname "\$CONDA_PREFIX")"
-tar -czf "\${pkg_dir}.tar.gz" "\$pkg_dir"
+if [[ "$arch" == "${build}" ]]; then
+  type="native"
+else
+  type="cross"
+fi
+CONDA_SUBDIR=$CONDA_BUILD_SUBDIR mamba create -n gfortran-darwin-${arch}-${type} gfortran_impl_${CONDA_SUBDIR}=${ver} libgfortran-devel_$CONDA_SUBDIR=${ver} --yes
+CODNA_SUBDIR=$CONDA_HOST_SUBDIR mamba install -n gfortran-darwin-${arch}-${type} libgfortran5=${ver} --yes
+conda activate gfortran-darwin-${arch}-${type}
+rm -rf $CONDA_PREFIX/lib/{libc++*,*.a,pkgconfig,clang}
+rm -rf $CONDA_PREFIX/{include,conda-meta,bin/iconv}
+for f in $CONDA_PREFIX/lib/{libgmp.dylib,libgmpxx.dylib,libisl.dylib,libiconv.dylib,libmpfr.dylib,libz.dylib,libcharset.dylib,libmpc.dylib}; do
+  install_name_tool -delete_rpath $CONDA_PREFIX/lib $f || true;
+  install_name_tool -delete_rpath $CONDA_PREFIX/lib $f || true;
+  rm $f;
+done
+rm $CONDA_PREFIX/lib/libiomp5.dylib
+if [[ "$type" == "cross" ]]; then
+  mv $CONDA_PREFIX/lib/{libgfortran*,libgomp*,libomp*,libgcc_s*} $CONDA_PREFIX/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}
+fi
+ln -sf /usr/bin/ld $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/ld
+sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" $CONDA_PREFIX/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}/libgfortran.spec
+rm $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
+mv $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1.bin $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
+pushd $CONDA_PREFIX/../
+grep -ir "isuruf" gfortran-darwin-${arch}-${type}/
+tar -czf gfortran-darwin-${arch}-${type}.tar.gz gfortran-darwin-${arch}-${type}
 popd
-EOF
-
-# move the tar-ball next to the script so upload-artifact can find it
-pkg_file=\$(basename "\$CONDA_PREFIX").tar.gz
-mv "\$(dirname "\$CONDA_PREFIX")/\$pkg_file" .
-
-
-mv "$HOME/micromamba/envs/gfortran-darwin-$arch-$type/../gfortran-darwin-$arch-$type.tar.gz" .
+mv $CONDA_PREFIX/../gfortran-darwin-${arch}-${type}.tar.gz .
