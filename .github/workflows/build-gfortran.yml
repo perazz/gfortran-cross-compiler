@@ -5,21 +5,16 @@ on:
   push:
     tags: [ 'gcc-*' ]
 
+# 1. four-way matrix: host (build_arch) x target_arch
+#    Intel runner for x86_64 host, Apple-silicon runner for arm64 host
 jobs:
   build:
-    # ── 1. two host machines ────────────────────────────────────────────────
     strategy:
       matrix:
-        include:
-          # Intel host
-          - runner: macos-13             # GitHub macOS Intel runner
-            build_arch: x86_64
-          # Apple-Silicon host
-          - runner: macos-14             # GitHub macOS ARM runner
-            build_arch: arm64
-        gcc: [14.2.0]                    # bump here for a new release
-
-    runs-on: ${{ matrix.runner }}
+        build_arch:  [x86_64, arm64]        # host CPU
+        target_arch: [x86_64, arm64]        # toolchain target
+        gcc:         [14.2.0]
+    runs-on: ${{ matrix.build_arch == 'arm64' && 'macos-14' || 'macos-13' }}    
 
     steps:
     - uses: actions/checkout@v4
@@ -31,25 +26,17 @@ jobs:
         cache-downloads: true
         cache-env: true
 
-    # ── 2. build for arm64 targets (native on apple-silicon, cross on intel) ─
-    - name: Build compiler for arm64 targets
-      run: |
-        bash scripts/build_gfortran.sh \
-          "${{ matrix.gcc }}" \
-          arm64 \
-          "${{ matrix.build_arch }}"
-
-    # ── 3. build for x86_64 targets (native on intel, cross on apple-silicon) ─
-    - name: Build compiler for x86_64 targets
-      run: |
-        bash scripts/build_gfortran.sh \
-          "${{ matrix.gcc }}" \
-          x86_64 \
-          "${{ matrix.build_arch }}"
-
-    # ── 4. upload whatever tarballs were produced in this job ────────────────
+    # (2) single call – the matrix already supplies both arches
+    - name: Build compiler
+      run: >
+        bash scripts/build_gfortran.sh
+        "${{ matrix.gcc }}"
+        "${{ matrix.target_arch }}"
+        "${{ matrix.build_arch }}"        
+        
+    # (3) upload whatever tarballs were produced in this job ────────────────
     - name: Upload artefacts
       uses: actions/upload-artifact@v4
       with:
-        name: gfortran-${{ matrix.build_arch }}-${{ matrix.gcc }}
-        path: gfortran-darwin-*.tar.gz
+        name: gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}
+        path: gfortran-darwin-${{ matrix.target_arch }}-*.tar.gz        
