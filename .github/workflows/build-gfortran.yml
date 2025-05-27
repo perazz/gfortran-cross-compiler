@@ -27,8 +27,10 @@ jobs:
       env:
         TARGET_ARCH: ${{ matrix.arch }}
         GFORTRAN_VERSION: ${{ matrix.gcc }}
-      run: bash scripts/build_gfortran.sh
-
+      run: |
+        export TARGET_ARCH GFORTRAN_VERSION    
+        bash scripts/build_gfortran.sh "${GFORTRAN_VERSION}" "${TARGET_ARCH}"      
+      
     - name: Upload artefact
       uses: actions/upload-artifact@v4
       with:
