@@ -7,18 +7,27 @@ arch="${TARGET_ARCH:-x86_64}"          # target ISA
 native="$(uname -m)"                   # runner’s ISA
 
 # ── resolve conda sub-dirs ────────────────────────────────────────
-CONDA_HOST_SUBDIR="osx-${arch/x86_64/64/arm64/arm64}"
-CONDA_BUILD_SUBDIR="osx-${native/x86_64/64/arm64/arm64}"
+case "$arch" in
+  x86_64) CONDA_HOST_SUBDIR="osx-64" ;;
+  arm64)  CONDA_HOST_SUBDIR="osx-arm64" ;;
+  *)      echo "Unsupported arch: $arch" >&2; exit 1 ;;
+esac
+
+case "$(uname -m)" in
+  x86_64) CONDA_BUILD_SUBDIR="osx-64" ;;
+  arm64)  CONDA_BUILD_SUBDIR="osx-arm64" ;;
+  *)      echo "Unsupported build arch" >&2; exit 1 ;;
+esac
 type=$([[ "$arch" == "$native" ]] && echo native || echo cross)
 
 # ── create env & install compiler + runtime ───────────────────────
-CONDA_SUBDIR=$CONDA_BUILD_SUBDIR micromamba create -n gfortran-darwin-$arch-$type -y \
-    gfortran_impl_${CONDA_HOST_SUBDIR}=$ver \
-    libgfortran-devel_${CONDA_HOST_SUBDIR}=$ver
+CONDA_SUBDIR=$CONDA_BUILD_SUBDIR micromamba create -y -n gfortran-darwin-$arch-$type \
+        gfortran_impl_${CONDA_HOST_SUBDIR}=$ver \
+        libgfortran-devel_${CONDA_HOST_SUBDIR}=$ver
 
-CONDA_SUBDIR=$CONDA_HOST_SUBDIR micromamba install -y -n \
-       gfortran-darwin-$arch-$type \
-       libgfortran5=$ver
+CONDA_SUBDIR=$CONDA_HOST_SUBDIR  micromamba install -y -n gfortran-darwin-$arch-$type \
+        libgfortran5=$ver
+
 
        
 # ── inside the env: prune, patch, pack ────────────────────────────
