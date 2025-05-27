@@ -68,7 +68,12 @@ if [[ -f "$specfile" && ! -L "$specfile" ]]; then   # edit only regular files
 fi
 
 rm -f $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
-mv $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1.bin $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
+
+# replace the wrapper with the real binary (native builds only)
+bin_src=$CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1.bin
+bin_dst=$CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/cc1
+[[ -f $bin_src ]] && mv "$bin_src" "$bin_dst"
+
 pushd $CONDA_PREFIX/../
 grep -ir "${GITHUB_ACTOR}" gfortran-darwin-${arch}-${type}/ || true
 tar -czf gfortran-darwin-${arch}-${type}.tar.gz gfortran-darwin-${arch}-${type}
