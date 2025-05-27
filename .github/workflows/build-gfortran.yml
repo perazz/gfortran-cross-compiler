@@ -8,8 +8,6 @@ on:
   push:
     tags: [ 'gcc-*' ]
 
-# 1. four-way matrix: host (build_arch) x target_arch
-#    Intel runner for x86_64 host, Apple-silicon runner for arm64 host
 jobs:
   build:
     strategy:
@@ -44,34 +42,5 @@ jobs:
         name: gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}
         path: gfortran-darwin-${{ matrix.target_arch }}-*.tar.gz        
 
-  publish-release:
-    needs: [build]                 # wait for every build job to finish
-    runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'     # skip on PRs
 
-    steps:
-    # 3-a: fetch every artefact those jobs produced
-    - name: Download build artefacts
-      uses: actions/download-artifact@v4
-      with:
-        path: dist                # everything ends up in ./dist/*
-
-    # 3-b: flatten the directory tree (download-artifact keeps job names)
-    - name: Flatten
-      run: |
-        find dist -name 'gfortran-*.tar.gz' -maxdepth 2 -exec mv {} . \;
-
-    # 3-c: create (or update) the Release and upload the tarballs
-    - name: Publish to GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: gcc-${{ env.GCC_VER }}          # e.g.  gcc-14.2.0
-        name: "gfortran darwin ${{ env.GCC_VER }}"
-        body: |
-          Pre-built gfortran for macOS.
-          * arm64 (native + cross)
-          * x86_64 (native + cross)
-        files: gfortran-*.tar.gz                  # uploads all four
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # auto-generated
         
