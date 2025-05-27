@@ -51,7 +51,9 @@ for f in $CONDA_PREFIX/lib/{libgmp.dylib,libgmpxx.dylib,libisl.dylib,libiconv.dy
 done
 rm $CONDA_PREFIX/lib/libiomp5.dylib
 if [[ "$type" == "cross" ]]; then
-  mv $CONDA_PREFIX/lib/{libgfortran*,libgomp*,libomp*,libgcc_s*} $CONDA_PREFIX/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}
+  dest=$CONDA_PREFIX/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}
+  mkdir -p "$dest"
+  mv $CONDA_PREFIX/lib/{libgfortran*,libgomp*,libomp*,libgcc_s*} "$dest"
 fi
 ln -sf /usr/bin/ld $CONDA_PREFIX/libexec/gcc/${arch}-apple-darwin${kern_ver}/${ver}/ld
 sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" $CONDA_PREFIX/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}/libgfortran.spec
