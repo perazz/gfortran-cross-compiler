@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+# let “micromamba activate …” work in this subshell
+eval "$(micromamba shell hook -s bash)"
+
 # ── 1. Pick up values from either CLI *or* exported env vars ────────────────
 #    (The workflow already sets GFORTRAN_VERSION / TARGET_ARCH.)
 ver=${1:-${GFORTRAN_VERSION:-11.3.0}}
@@ -36,7 +39,9 @@ export CONDA_SUBDIR=$CONDA_HOST_SUBDIR
 micromamba install -n gfortran-darwin-${arch}-${type} \
   libgfortran5=${ver} --yes
 
-conda activate gfortran-darwin-${arch}-${type}
+# enter the freshly-created env
+micromamba activate gfortran-darwin-${arch}-${type}
+
 rm -rf $CONDA_PREFIX/lib/{libc++*,*.a,pkgconfig,clang}
 rm -rf $CONDA_PREFIX/{include,conda-meta,bin/iconv}
 for f in $CONDA_PREFIX/lib/{libgmp.dylib,libgmpxx.dylib,libisl.dylib,libiconv.dylib,libmpfr.dylib,libz.dylib,libcharset.dylib,libmpc.dylib}; do
