@@ -24,12 +24,11 @@ jobs:
         cache-env: true
 
     - name: Build compiler
-      env:
-        TARGET_ARCH: ${{ matrix.arch }}
-        GFORTRAN_VERSION: ${{ matrix.gcc }}
-      run: |
-        export TARGET_ARCH GFORTRAN_VERSION    
-        bash scripts/build_gfortran.sh "${GFORTRAN_VERSION}" "${TARGET_ARCH}"      
+      run: >
+        bash scripts/build_gfortran.sh
+        "${{ matrix.gcc }}"      # ver=É
+        "${{ matrix.arch }}"     # arch=É
+        "x86_64"                 # build=
       
     - name: Upload artefact
       uses: actions/upload-artifact@v4

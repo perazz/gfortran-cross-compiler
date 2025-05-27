@@ -23,7 +23,7 @@ else
   type="cross"
 fi
 CONDA_SUBDIR=$CONDA_BUILD_SUBDIR mamba create -n gfortran-darwin-${arch}-${type} gfortran_impl_${CONDA_SUBDIR}=${ver} libgfortran-devel_$CONDA_SUBDIR=${ver} --yes
-CODNA_SUBDIR=$CONDA_HOST_SUBDIR mamba install -n gfortran-darwin-${arch}-${type} libgfortran5=${ver} --yes
+CONDA_SUBDIR=$CONDA_HOST_SUBDIR mamba install -n gfortran-darwin-${arch}-${type} libgfortran5=${ver} --yes
 conda activate gfortran-darwin-${arch}-${type}
 rm -rf $CONDA_PREFIX/lib/{libc++*,*.a,pkgconfig,clang}
 rm -rf $CONDA_PREFIX/{include,conda-meta,bin/iconv}
