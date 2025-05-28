@@ -35,6 +35,8 @@ micromamba create -y -p "$BUILD_ENV_PREFIX" -c conda-forge \
 # activate the very same prefix
 micromamba activate "$BUILD_ENV_PREFIX"
 export PATH="$BUILD_ENV_PREFIX/bin:$PATH"
+export PATH="/usr/bin:$PATH"  # Force system tools to avoid broken libintl linkage
+
 export CC=clang CXX=clang++
 
 # strip out .dylibs from the bootstrap libs so we don’t acci­dentally pick them up
