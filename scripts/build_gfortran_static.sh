@@ -18,9 +18,32 @@ export CC=clang CXX=clang++
 export CPPFLAGS="-I$STATIC_ROOT/include"
 export LDFLAGS="-L$STATIC_ROOT/lib -static"
 
-curl -Lso "gcc-${GCC_VER}.tar.gz" "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.gz"
-tar xf "gcc-${GCC_VER}.tar.gz"
+GCC_TARBALL="gcc-${GCC_VER}.tar.gz"
+GCC_URLS=(
+  "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VER}/${GCC_TARBALL}"
+  "https://ftpmirror.gnu.org/gcc/gcc-${GCC_VER}/${GCC_TARBALL}"
+)
+
+# Try each URL with retries
+for url in "${GCC_URLS[@]}"; do
+  echo "Attempting download from $url"
+  if curl -L --retry 5 --retry-delay 3 -o "$GCC_TARBALL" "$url"; then
+    break
+  else
+    echo "Failed to download from $url"
+  fi
+done
+
+# Check result
+if [[ ! -f "$GCC_TARBALL" ]]; then
+  echo "ERROR: Failed to download GCC tarball from all sources"
+  exit 1
+fi
+
+# Continue as before
+tar xf "$GCC_TARBALL"
 mkdir gcc-build && cd gcc-build
+
 
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin$(uname -r)" \
