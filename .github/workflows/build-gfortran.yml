@@ -42,13 +42,19 @@ jobs:
         curl -Lso downloads/zlib-1.3.1.gz      "$base_url/zlib-1.3.1.gz"
         
     # (2) single call – the matrix already supplies both arches
+    - name: Install dependencies
+      run: bash scripts/install_deps.sh
+
+    - name: Verify static prerequisites
+      run: bash scripts/check_static_deps.sh      
+      
     - name: Build compiler
       run: >
         bash scripts/build_gfortran_static.sh
         "${{ matrix.gcc }}"
         "${{ matrix.target_arch }}"
-        "${{ matrix.build_arch }}"
-
+        "${{ matrix.build_arch }}"        
+        
     # (2 b) compute a checksum that travels with the tarball ──────────────
     - name: Compute SHA-256
       id: sha256
