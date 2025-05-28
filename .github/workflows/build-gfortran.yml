@@ -30,14 +30,23 @@ jobs:
         bash scripts/build_gfortran.sh
         "${{ matrix.gcc }}"
         "${{ matrix.target_arch }}"
-        "${{ matrix.build_arch }}"        
-        
+        "${{ matrix.build_arch }}"
+
+    # (2 b) compute a checksum that travels with the tarball ──────────────
+    - name: Compute SHA-256
+      id: sha256
+      run: |
+        TARBALL=$(ls gfortran-darwin-${{ matrix.target_arch }}-*.tar.gz)
+        shasum -a 256 "$TARBALL" > \
+          "gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}.sha256"   
+
     # (3) upload whatever tarballs were produced in this job ────────────────
     - name: Upload artefacts
       uses: actions/upload-artifact@v4
       with:
         name: gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}
-        path: gfortran-darwin-${{ matrix.target_arch }}-*.tar.gz        
-
+        path: |
+          gfortran-darwin-${{ matrix.target_arch }}-*.tar.gz
+          gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}.sha256
 
         
