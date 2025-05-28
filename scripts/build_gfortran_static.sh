@@ -43,8 +43,9 @@ find "$CONDA_PREFIX/lib" -name '*.dylib' -delete
 #--------------------------- 3. Build static prerequisites --------------
 build_one () {
   local pkg=$1 ver=$2 url=$3 cfg_extra=$4
-  curl -Lso "${pkg}-${ver}.tar.gz" "$url"
-  tar xf "${pkg}-${ver}.tar.gz"
+  ext="${url##*.}"  # captures "xz" or "gz"
+  curl -Lso "${pkg}-${ver}.tar.${ext}" "$url"
+  tar xf "${pkg}-${ver}.tar.${ext}"
   pushd "${pkg}-${ver}"
     ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared $cfg_extra
     make -j"$(sysctl -n hw.ncpu)"
