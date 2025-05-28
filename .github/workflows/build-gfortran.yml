@@ -54,8 +54,8 @@ jobs:
       
     - name: Build compiler        
       run: |
-        mkdir -p gcc‐build
-        cd gcc‐build
+        mkdir -p gcc-build
+        cd gcc-build
         bash ../scripts/build_gfortran_static.sh \
           "${{ matrix.gcc }}" \
           "${{ matrix.target_arch }}" \

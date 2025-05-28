@@ -74,7 +74,7 @@ find "$PREFIX"/lib \
 
 rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
 
-# Keep static libgfortran / libquadmath / libgcc – we need them later
+# Keep static libgfortran / libquadmath / libgcc - we need them later
 # Everything else under lib/*.a can go after we move the keepers.
 rm -rf "$PREFIX"/lib/{pkgconfig,clang}
 
