@@ -1,0 +1,48 @@
+name: Setup cross-compiler (build on the fly)
+description: >
+  Builds a static gfortran/gcc cross-toolchain for macOS inside the callerÕs job.
+inputs:
+  gcc:
+    description: GCC version (major.minor.patch)
+    default: "14.2.0"
+  target_arch:
+    description: Target architecture (arm64 | x86_64)
+    required: true
+runs:
+  using: composite
+  steps:
+    # 1. checkout THIS repository (the actionÕs source)
+    - uses: actions/checkout@v4
+      with: { path: cross-src }
+
+    # 2. install micromamba + deps (same recipe you already have)
+    - uses: mamba-org/setup-micromamba@v1
+      with:
+        init-shell: bash
+        environment-file: cross-src/env.yml   # optional, if you keep deps in YAML
+
+    # 3. build the toolchain
+    - name: Build static cross-compiler
+      shell: bash
+      run: |
+        BUILD_ARCH=$(uname -m)                # arm64 or x86_64
+        bash cross-src/scripts/build_gfortran.sh \
+             "${{ inputs.gcc }}" \
+             "${{ inputs.target_arch }}" \
+             "$BUILD_ARCH"
+
+    # 4. expose wrappers and env vars to later steps
+    - name: Expose FC/CC/CXX
+      shell: bash
+      run: |
+        TOOLROOT=$(echo $PWD/install-${{ inputs.target_arch }})
+        ln -sf "$TOOLROOT/bin/gfortran" cross-gfortran
+        ln -sf "$TOOLROOT/bin/gcc"      cross-gcc
+        ln -sf "$TOOLROOT/bin/g++"      cross-g++
+
+        echo "$PWD" >> "$GITHUB_PATH"
+        {
+          echo "FC=cross-gfortran"
+          echo "CC=cross-gcc"
+          echo "CXX=cross-g++"
+        } >> "$GITHUB_ENV"
