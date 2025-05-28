@@ -44,7 +44,7 @@ find "$CONDA_PREFIX/lib" -name '*.dylib' -delete
 build_one () {
   local pkg=$1 ver=$2 filnm=$3 cfg_extra=$4
   ext="${filnm##*.}"  # "gz" or "xz"
-  tarball="${pkg}-${ver}.tar.${ext}"
+  tarball="${pkg}-${ver}.${ext}"
   src_tar="downloads/${tarball}"  # assumes pre-download to this folder
 
   if [[ ! -f "$src_tar" ]]; then
