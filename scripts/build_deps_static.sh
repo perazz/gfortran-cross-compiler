@@ -44,7 +44,7 @@ build_one () {
   pushd "${pkg}-${ver}"
     
     if [[ "$pkg" == "zlib" ]]; then
-      ./configure --prefix="$STATIC_ROOT" --static "${cfg_extra[@]}"
+      ./configure --prefix="$STATIC_ROOT" --static
     else
       ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared "${cfg_extra[@]}"
     fi
