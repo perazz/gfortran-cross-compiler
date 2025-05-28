@@ -7,11 +7,17 @@ on:
 
 jobs:
   build:
+# strategy:
+#   matrix:
+#     build_arch:  [x86_64, arm64]
+#     target_arch: [x86_64, arm64]
+#     gcc:         [14.2.0]
     strategy:
       matrix:
-        build_arch:  [x86_64, arm64]        # host CPU
-        target_arch: [x86_64, arm64]        # toolchain target
+        build_arch:  [arm64]
+        target_arch: [x86_64]
         gcc:         [14.2.0]
+
     runs-on: ${{ matrix.build_arch == 'arm64' && 'macos-14' || 'macos-13' }}    
 
     steps:
@@ -29,11 +35,11 @@ jobs:
         mkdir -p downloads
         base_url="https://github.com/perazz/gfortran-cross-compiler/releases/download/static-prereqs-v1"
 
-        curl -Lso downloads/gmp-6.3.0.tar.gz       "$base_url/gmp-6.3.0.tar.gz"
-        curl -Lso downloads/mpfr-4.2.1.tar.gz      "$base_url/mpfr-4.2.1.tar.gz"
-        curl -Lso downloads/mpc-1.3.1.tar.gz       "$base_url/mpc-1.3.1.tar.gz"
-        curl -Lso downloads/isl-0.26.tar.gz        "$base_url/isl-0.26.tar.gz"
-        curl -Lso downloads/zlib-1.3.1.tar.gz      "$base_url/zlib-1.3.1.tar.gz"
+        curl -Lso downloads/gmp-6.3.0.gz       "$base_url/gmp-6.3.0.gz"
+        curl -Lso downloads/mpfr-4.2.1.gz      "$base_url/mpfr-4.2.1.gz"
+        curl -Lso downloads/mpc-1.3.1.gz       "$base_url/mpc-1.3.1.gz"
+        curl -Lso downloads/isl-0.26.gz        "$base_url/isl-0.26.gz"
+        curl -Lso downloads/zlib-1.3.1.gz      "$base_url/zlib-1.3.1.gz"
         
     # (2) single call – the matrix already supplies both arches
     - name: Build compiler
