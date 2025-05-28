@@ -27,7 +27,7 @@ jobs:
     # (2) single call – the matrix already supplies both arches
     - name: Build compiler
       run: >
-        bash scripts/build_gfortran.sh
+        bash scripts/build_gfortran_static.sh
         "${{ matrix.gcc }}"
         "${{ matrix.target_arch }}"
         "${{ matrix.build_arch }}"
