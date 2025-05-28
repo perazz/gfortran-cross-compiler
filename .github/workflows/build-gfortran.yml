@@ -43,7 +43,7 @@ jobs:
         
     # (2) single call – the matrix already supplies both arches
     - name: Install dependencies
-      run: bash scripts/install_deps.sh
+      run: bash scripts/build_deps_static.sh
 
     - name: Verify static prerequisites
       run: bash scripts/check_static_deps.sh      
