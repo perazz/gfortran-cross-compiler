@@ -16,6 +16,9 @@ mkdir -p "$STATIC_ROOT"
 #--------------------------- 2. Bootstrap env ---------------------------
 eval "$(micromamba shell hook -s bash)"
 
+# wipe any leftover env from a prior run (ignore error if it isn't there)
+micromamba env remove -y -n gcc-static-build || true
+
 micromamba create -y -n gcc-static-build -c conda-forge \
   clang lld                         \
   make cmake                        \
