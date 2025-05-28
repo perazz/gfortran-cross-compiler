@@ -1,0 +1,30 @@
+name: self-test-cross-gfortran
+on:
+  workflow_dispatch:           # run manually from the Actions tab
+
+jobs:
+  build-matrix:
+    runs-on: macos-14          # Apple-silicon runner (fastest)
+    strategy:
+      matrix:
+        target_arch: [arm64, x86_64]   # prove both cross directions work
+
+    steps:
+      ##################################################################
+      # Step 1 Ð Call *our own* composite action
+      ##################################################################
+      - name: Build cross compiler
+        uses: ./
+        with:
+          gcc: "14.2.0"                # override if you like
+          target_arch: ${{ matrix.target_arch }}
+
+      ##################################################################
+      # Step 2 Ð Smoke-test the result
+      ##################################################################
+      - name: Compile & run a Hello-world program
+        run: |
+          echo 'program t; print *, "SUCCESS: ", &
+                & kind(0.0d0); end' > t.f90
+          $FC t.f90 -o t
+          ./t
