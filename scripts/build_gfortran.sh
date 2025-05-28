@@ -52,10 +52,7 @@ PREFIX="$CONDA_PREFIX"
 #######################################################################
 # 4.  Delete *all* shared libraries and other clutter
 #######################################################################
-mapfile -t dylibs < <(find "$PREFIX"/lib -name '*.dylib' -maxdepth 1)
-for f in "${dylibs[@]}"; do
-  rm -f "$f"
-done
+find "$PREFIX"/lib -maxdepth 1 -name '*.dylib' -exec rm -f {} +
 
 rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
 rm -rf "$PREFIX"/lib/{pkgconfig,clang,*.a}            # remove non-GCC *.a
