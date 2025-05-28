@@ -42,9 +42,19 @@ build_one () {
   cp "$src_tar" .
   tar xf "$tarball"
   pushd "${pkg}-${ver}"
-    ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared "${cfg_extra[@]}"
-    make -j"$(sysctl -n hw.ncpu)"
-    make install
+    
+    if [[ "$pkg" == "zlib" ]]; then
+      # manually build static lib and install it
+      make -f Makefile libz.a
+      mkdir -p "$STATIC_ROOT/lib" "$STATIC_ROOT/include"
+      cp libz.a "$STATIC_ROOT/lib"
+      cp zlib.h zconf.h "$STATIC_ROOT/include"
+    else
+      ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared "${cfg_extra[@]}"
+      make -j"$(sysctl -n hw.ncpu)"
+      make install
+    fi
+    
   popd
 }
 
