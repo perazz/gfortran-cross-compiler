@@ -70,7 +70,7 @@ if [[ $type == cross ]]; then
   shopt -s nullglob          # empty globs disappear instead of erroring
   for a in "$PREFIX"/lib/libgfortran*.a \
            "$PREFIX"/lib/libquadmath*.a \
-           "$PREFIX"/lib/libgcc"*.a"; do
+           "$PREFIX"/lib/libgcc*.a; do
     mv "$a" "$dest/"
   done
   shopt -u nullglob
