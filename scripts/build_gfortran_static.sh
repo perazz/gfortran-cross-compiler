@@ -40,7 +40,7 @@ export PATH="/usr/bin:$PATH"  # Force system tools to avoid broken libintl linka
 export CC=clang CXX=clang++
 
 # strip out .dylibs from the bootstrap libs so we don’t acci­dentally pick them up
-find "$CONDA_PREFIX/lib" -name '*.dylib' -delete
+# find "$CONDA_PREFIX/lib" -name '*.dylib' -delete
 
 #--------------------------- 3. Build static prerequisites --------------
 build_one () {
