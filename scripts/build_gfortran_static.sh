@@ -45,7 +45,7 @@ mkdir gcc-build && cd gcc-build
   --host="${BUILD_ARCH}-apple-darwin$(uname -r)" \
   --target="$TRIPLE" \
   --prefix="$STATIC_ROOT" \
-  --with-sysroot=/ \
+  --with-sysroot="$SDKROOT" \
   --enable-languages=c,c++,fortran \
   --disable-shared --enable-static \
   --disable-multilib --disable-nls \
