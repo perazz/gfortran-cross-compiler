@@ -13,4 +13,4 @@ for lib in libgmp.a libmpfr.a libmpc.a libisl.a libz.a; do
   test -f "$STATIC_ROOT/lib/$lib" || { echo "Missing library: $lib"; exit 1; }
 done
 
-echo "✅ Static prerequisite installation verified"
+echo "✅ Static prerequisite installation verified, root=$STATIC_ROOT"
