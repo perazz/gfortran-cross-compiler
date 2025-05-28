@@ -1,27 +1,10 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-export MAMBA_NO_PROMPT=1
-export MAMBA_LOG_LEVEL='debug'
+if [[ -z "${MAMBA_DEFAULT_ENV:-}" ]]; then
+  source "$(dirname "$0")/activate_mamba.sh"
+fi
 
-WORKDIR=${PWD}
-STATIC_ROOT=$WORKDIR/static-root
-mkdir -p "$STATIC_ROOT"
-
-BUILD_ENV_PREFIX="$WORKDIR/.gcc-static-build"
-rm -rf "$BUILD_ENV_PREFIX"
-
-eval "$(micromamba shell hook -s bash)"
-
-micromamba create -y -p "$BUILD_ENV_PREFIX" -c conda-forge \
-  clang lld \
-  make cmake \
-  autoconf automake libtool \
-  pkg-config texinfo \
-  patch curl ca-certificates git
-
-micromamba activate "$BUILD_ENV_PREFIX"
-export PATH="$BUILD_ENV_PREFIX/bin:/usr/bin:$PATH"
 export CC=clang CXX=clang++
 
 build_one () {

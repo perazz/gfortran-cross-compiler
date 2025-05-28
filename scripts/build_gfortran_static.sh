@@ -1,20 +1,17 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+if [[ -z "${MAMBA_DEFAULT_ENV:-}" ]]; then
+  source "$(dirname "$0")/activate_mamba.sh"
+fi
+
 GCC_VER=${1:-11.3.0}
 TARGET_ARCH=${2:-x86_64}
 BUILD_ARCH=${3:-$TARGET_ARCH}
 KERN_VER=$([[ $TARGET_ARCH == x86_64 ]] && echo 13.4.0 || echo 20.0.0)
 TRIPLE="${TARGET_ARCH}-apple-darwin${KERN_VER}"
 
-WORKDIR=${PWD}
-STATIC_ROOT=$WORKDIR/static-root
-
-eval "$(micromamba shell hook -s bash)"
-micromamba activate "$WORKDIR/.gcc-static-build"
-export PATH="$WORKDIR/.gcc-static-build/bin:/usr/bin:$PATH"
 export CC=clang CXX=clang++
-
 export CPPFLAGS="-I$STATIC_ROOT/include"
 export LDFLAGS="-L$STATIC_ROOT/lib -static"
 
