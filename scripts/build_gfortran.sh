@@ -84,11 +84,11 @@ if [[ $type == cross ]]; then
 
   shopt -s nullglob          # empty globs disappear instead of erroring
   # static + dynamic, all variants we need at link-time
-  for f in "$PREFIX"/lib/libgfortran"*".{a,dylib} \
-           "$PREFIX"/lib/libquadmath"*".{a,dylib} \
-           "$PREFIX"/lib/libgcc"*".{a,dylib} \
-           "$PREFIX"/lib/libgomp"*".{a,dylib} \
-           "$PREFIX"/lib/libomp"*".{a,dylib}; do
+  for f in "$PREFIX"/lib/libgfortran*.{a,dylib} \
+           "$PREFIX"/lib/libquadmath*.{a,dylib} \
+           "$PREFIX"/lib/libgcc*.{a,dylib} \
+           "$PREFIX"/lib/libgomp*.{a,dylib} \
+           "$PREFIX"/lib/libomp*.{a,dylib}; do
     mv "$f" "$dest/"
   done
   shopt -u nullglob
