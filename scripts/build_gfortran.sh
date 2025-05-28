@@ -66,6 +66,7 @@ find "$PREFIX"/lib \
      ! -name 'libmpc*.dylib' \
      ! -name 'libmpfr*.dylib' \
      ! -name 'libgmp*.dylib' \
+     ! -name 'libquadmath*.dylib' \
      -exec rm -f {} +
 
 rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
@@ -75,17 +76,20 @@ rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
 rm -rf "$PREFIX"/lib/{pkgconfig,clang}
 
 #######################################################################
-# 6.  For cross builds, move target-side static libs into GCC’s tree
+# 6.  For cross builds, move target-side runtime libs into GCC’s tree
 #######################################################################
 if [[ $type == cross ]]; then
   dest="$PREFIX"/lib/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"
   mkdir -p "$dest"
 
   shopt -s nullglob          # empty globs disappear instead of erroring
-  for a in "$PREFIX"/lib/libgfortran*.a \
-           "$PREFIX"/lib/libquadmath*.a \
-           "$PREFIX"/lib/libgcc*.a; do
-    mv "$a" "$dest/"
+  # static + dynamic, all variants we need at link-time
+  for f in "$PREFIX"/lib/libgfortran"*".{a,dylib} \
+           "$PREFIX"/lib/libquadmath"*".{a,dylib} \
+           "$PREFIX"/lib/libgcc"*".{a,dylib} \
+           "$PREFIX"/lib/libgomp"*".{a,dylib} \
+           "$PREFIX"/lib/libomp"*".{a,dylib}; do
+    mv "$f" "$dest/"
   done
   shopt -u nullglob
 fi
