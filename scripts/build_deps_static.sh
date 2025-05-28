@@ -27,7 +27,7 @@ export CC=clang CXX=clang++
 build_one () {
   local pkg=$1 ver=$2 filnm=$3
   shift 3
-  local cfg_extra=()
+  local -a cfg_extra=()
   [[ $# -gt 0 ]] && cfg_extra=("$@")
 
   ext="${filnm##*.}"
