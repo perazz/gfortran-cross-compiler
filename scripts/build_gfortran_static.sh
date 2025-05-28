@@ -44,7 +44,7 @@ find "$CONDA_PREFIX/lib" -name '*.dylib' -delete
 build_one () {
   local pkg=$1 ver=$2 url=$3 cfg_extra=$4
   ext="${url##*.}"  # captures "xz" or "gz"
-  curl -Lso "${pkg}-${ver}.tar.${ext}" "$url"
+  curl -Lso "${pkg}-${ver}.tar.${ext}" "$url" -v
   tar xf "${pkg}-${ver}.tar.${ext}"
   pushd "${pkg}-${ver}"
     ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared $cfg_extra
