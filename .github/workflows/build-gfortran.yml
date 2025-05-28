@@ -59,6 +59,13 @@ jobs:
         "${{ matrix.target_arch }}"
         "${{ matrix.build_arch }}"        
         
+    - name: Show gcc-config.log
+      if: failure()                 # run only when a previous step fails
+      run: |
+        echo '──── gcc-build/config.log ────'
+        cat gcc-build/config.log || true     # adjust path if yours differs
+        echo '──────────────────────────────'   
+        
     # (2 b) compute a checksum that travels with the tarball ──────────────
     - name: Compute SHA-256
       id: sha256
