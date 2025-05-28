@@ -43,15 +43,24 @@ find "$CONDA_PREFIX/lib" -name '*.dylib' -delete
 #--------------------------- 3. Build static prerequisites --------------
 build_one () {
   local pkg=$1 ver=$2 url=$3 cfg_extra=$4
-  ext="${url##*.}"  # captures "xz" or "gz"
-  /usr/bin/curl -Lso "${pkg}-${ver}.tar.${ext}" "$url" -v
-  tar xf "${pkg}-${ver}.tar.${ext}"
+  ext="${url##*.}"  # "gz" or "xz"
+  tarball="${pkg}-${ver}.tar.${ext}"
+  src_tar="downloads/${tarball}"  # assumes pre-download to this folder
+
+  if [[ ! -f "$src_tar" ]]; then
+    echo "ERROR: $src_tar not found. Please download before running this script."
+    exit 1
+  fi
+
+  cp "$src_tar" .
+  tar xf "$tarball"
   pushd "${pkg}-${ver}"
     ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared $cfg_extra
     make -j"$(sysctl -n hw.ncpu)"
     make install
   popd
 }
+
 build_one gmp   6.3.0  "https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz"   ""
 build_one mpfr  4.2.1  "https://www.mpfr.org/mpfr-4.2.1/mpfr-4.2.1.tar.xz"  "--with-gmp=$STATIC_ROOT"
 build_one mpc   1.3.1  "https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz"        "--with-gmp=$STATIC_ROOT --with-mpfr=$STATIC_ROOT"

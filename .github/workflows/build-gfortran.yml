@@ -24,6 +24,15 @@ jobs:
         cache-downloads: true
         cache-env: true
 
+    - name: Download static prerequisites
+      run: |
+        mkdir -p downloads
+        curl -Lso downloads/gmp-6.3.0.tar.xz https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz
+        curl -Lso downloads/mpfr-4.2.1.tar.xz https://www.mpfr.org/mpfr-4.2.1/mpfr-4.2.1.tar.xz
+        curl -Lso downloads/mpc-1.3.1.tar.gz https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz
+        curl -Lso downloads/isl-0.26.tar.xz http://isl.gforge.inria.fr/isl-0.26.tar.xz
+        curl -Lso downloads/zlib-1.3.1.tar.xz https://zlib.net/zlib-1.3.1.tar.xz
+        
     # (2) single call – the matrix already supplies both arches
     - name: Build compiler
       run: >
