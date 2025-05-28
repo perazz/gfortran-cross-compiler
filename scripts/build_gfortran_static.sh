@@ -41,6 +41,12 @@ echo "CFLAGS = $CFLAGS"
 echo "CXXFLAGS = $CXXFLAGS"
 echo "LDFLAGS = $LDFLAGS"
 
+echo "Testing clang++:"
+$CXX --version || { echo "clang++ not found or not executable"; exit 1; }
+
+echo "Testing C++11 support:"
+echo 'int main() { auto x = 42; return x; }' | $CXX -std=c++11 -x c++ -o /tmp/test-cxx11 - || { echo "C++11 test failed"; exit 1; }
+
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin$(uname -r)" \
   --host="${BUILD_ARCH}-apple-darwin$(uname -r)" \
