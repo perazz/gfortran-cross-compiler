@@ -1,29 +1,30 @@
 name: Setup cross-compiler (build on the fly)
-description: Builds a (mostly) static gfortran/gcc toolchain for macOS runners.
+description: Builds a (mostly) static gfortran / GCC tool-chain for macOS runners.
 
 inputs:
   gcc:
     description: GCC version (major.minor.patch)
     default: "14.2.0"
   target_arch:
-    description: Target architecture (arm64 | x86_64)
+    description: Target architecture to emit code for (arm64 | x86_64)
     required: true
 
 runs:
   using: composite
   steps:
-    # 1️⃣  Get the action’s own source so scripts are available
+    # 1️⃣  Checkout the action’s own source (so scripts are available)
     - uses: actions/checkout@v4
-      with: { path: cross-src }
+      with:
+        path: cross-src
 
-    # 2️⃣  Install micromamba (no env file)
+    # 2️⃣  Lightweight conda front-end
     - uses: mamba-org/setup-micromamba@v1
       with:
         init-shell: bash
         cache-downloads: true
         cache-env: true
 
-    # 3️⃣  Build the toolchain and remember where it lives
+    # 3️⃣  Build the tool-chain (drops a tarball in $PWD)
     - name: Build static cross-compiler
       shell: bash
       run: |
@@ -33,26 +34,32 @@ runs:
              "${{ inputs.target_arch }}" \
              "$BUILD_ARCH"
 
-        # Make the env path available to the next step
-        echo "TOOLROOT=$CONDA_PREFIX" >> "$GITHUB_ENV"
-
-    # 4️⃣  Create lightweight wrappers + env vars
-    - name: Expose FC / CC / CXX
+    # 4️⃣  Unpack it into ./bin and expose compilers
+    - name: Install & expose cross-compiler
       shell: bash
       run: |
-        WRAPPER_DIR="$PWD/cross-src/bin"
-        mkdir -p "$WRAPPER_DIR"
+        # Where we want the final tree to live
+        TOOLCHAIN_DIR="$PWD/bin"
+        mkdir -p "$TOOLCHAIN_DIR"
 
-        ln -sf "$TOOLROOT/bin/gfortran" "$WRAPPER_DIR/cross-gfortran"
-        ln -sf "$TOOLROOT/bin/gcc"      "$WRAPPER_DIR/cross-gcc"
-        ln -sf "$TOOLROOT/bin/g++"      "$WRAPPER_DIR/cross-g++"
+        # Locate the tarball produced in the previous step
+        TARBALL=$(echo gfortran-darwin-*.tar.gz)
 
-        # Put wrappers on PATH for subsequent *job* steps
-        echo "PATH=$WRAPPER_DIR:$PATH" >> "$GITHUB_ENV"
+        # Unpack, dropping the single leading directory component
+        tar -xzf "$TARBALL" -C "$TOOLCHAIN_DIR" --strip-components=1
 
-        # Point common build vars straight at the wrappers
+        # Convenience symlinks at the tool-chain root
+        ln -sf "$TOOLCHAIN_DIR/bin/gfortran" "$TOOLCHAIN_DIR/cross-gfortran"
+        ln -sf "$TOOLCHAIN_DIR/bin/gcc"      "$TOOLCHAIN_DIR/cross-gcc"
+        ln -sf "$TOOLCHAIN_DIR/bin/g++"      "$TOOLCHAIN_DIR/cross-g++"
+
+        # Make everything discoverable for the rest of the workflow
         {
-          echo "FC=$WRAPPER_DIR/cross-gfortran"
-          echo "CC=$WRAPPER_DIR/cross-gcc"
-          echo "CXX=$WRAPPER_DIR/cross-g++"
+          echo "PATH=$TOOLCHAIN_DIR:$TOOLCHAIN_DIR/bin:$PATH"
+          echo "FC=$TOOLCHAIN_DIR/cross-gfortran"
+          echo "CC=$TOOLCHAIN_DIR/cross-gcc"
+          echo "CXX=$TOOLCHAIN_DIR/cross-g++"
+          echo "CROSS_GFORTRAN=$TOOLCHAIN_DIR/cross-gfortran"
+          echo "CROSS_GCC=$TOOLCHAIN_DIR/cross-gcc"
+          echo "CROSS_GPP=$TOOLCHAIN_DIR/cross-g++"
         } >> "$GITHUB_ENV"

@@ -31,6 +31,6 @@ jobs:
       - name: Compile & run a Hello-world program
         run: |
           echo 'program t; print *, "SUCCESS: ", &
-                & kind(0.0d0); end' > t.f90
+                & kind(0.0); end' > t.f90
           $FC t.f90 -o t
           ./t
