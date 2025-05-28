@@ -12,7 +12,7 @@ mkdir -p "$STATIC_ROOT"
 eval "$(micromamba shell hook -s bash)"
 
 micromamba create -y -p "$BUILD_ENV_PREFIX" -c conda-forge \
-  clang lld \
+  clang clangxx lld \
   make cmake \
   autoconf automake libtool \
   pkg-config texinfo \
