@@ -111,6 +111,12 @@ if [[ -f "$execdir"/cc1.bin ]]; then
   mv     "$execdir"/cc1.bin "$execdir"/cc1
 fi
 
+#---------------------------------------------------------------------
+# 8½.  Make GCC's @rpath (@loader_path/../../../../lib) resolve
+#      Correct place is  <PREFIX>/lib -> we add a symlink in <PREFIX>/bin
+#---------------------------------------------------------------------
+ln -sf ../lib "$PREFIX/bin/lib"
+
 #######################################################################
 # 9.  Pack the environment
 #######################################################################
