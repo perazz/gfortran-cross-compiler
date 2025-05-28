@@ -30,7 +30,7 @@ micromamba create -y -p "$BUILD_ENV_PREFIX" -c conda-forge \
   make cmake                        \
   autoconf automake libtool         \
   pkg-config texinfo                \
-  sed  gawk grep patch curl-dev curl git
+  sed  gawk grep patch curl git
 
 # activate the very same prefix
 micromamba activate "$BUILD_ENV_PREFIX"
