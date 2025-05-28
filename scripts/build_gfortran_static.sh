@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-if [[ -z "${MAMBA_DEFAULT_ENV:-}" ]]; then
-  source "$(dirname "$0")/activate_mamba.sh"
-fi
+source "$(dirname "$0")/activate_mamba.sh"
 
 GCC_VER=${1:-11.3.0}
 TARGET_ARCH=${2:-x86_64}

@@ -9,3 +9,4 @@ micromamba activate "$BUILD_ENV_PREFIX"
 export PATH="$BUILD_ENV_PREFIX/bin:/usr/bin:$PATH"
 export CC=clang
 export CXX=clang++
+export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
