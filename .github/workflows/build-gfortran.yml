@@ -18,7 +18,7 @@ jobs:
         target_arch: [x86_64]
         gcc:         [14.2.0]
 
-    runs-on: ${{ matrix.build_arch == 'arm64' ? 'macos-14' : 'macos-13' }}
+    runs-on: ${{ matrix.build_arch == 'arm64' && 'macos-14' || 'macos-13' }}  
 
     steps:
     - uses: actions/checkout@v4
