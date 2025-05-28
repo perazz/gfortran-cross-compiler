@@ -61,18 +61,18 @@ build_one () {
   popd
 }
 
-build_one gmp   6.3.0  "https://gmplib.org/download/gmp/gmp-6.3.0.tar.xz"   ""
-build_one mpfr  4.2.1  "https://www.mpfr.org/mpfr-4.2.1/mpfr-4.2.1.tar.xz"  "--with-gmp=$STATIC_ROOT"
+build_one gmp   6.3.0  "https://gmplib.org/download/gmp/gmp-6.3.0.tar.gz"   ""
+build_one mpfr  4.2.1  "https://www.mpfr.org/mpfr-4.2.1/mpfr-4.2.1.tar.gz"  "--with-gmp=$STATIC_ROOT"
 build_one mpc   1.3.1  "https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz"        "--with-gmp=$STATIC_ROOT --with-mpfr=$STATIC_ROOT"
-build_one isl   0.26   "http://isl.gforge.inria.fr/isl-0.26.tar.xz"          ""
-build_one zlib  1.3.1  "https://zlib.net/zlib-1.3.1.tar.xz"                  ""
+build_one isl   0.26   "http://isl.gforge.inria.fr/isl-0.26.tar.gz"          ""
+build_one zlib  1.3.1  "https://zlib.net/zlib-1.3.1.tar.gz"                  ""
 
 export CPPFLAGS="-I$STATIC_ROOT/include"
 export LDFLAGS="-L$STATIC_ROOT/lib -static"
 
 #--------------------------- 4.   Build GCC   ---------------------------
-curl -Lso "gcc-${GCC_VER}.tar.xz" "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.xz"
-tar xf "gcc-${GCC_VER}.tar.xz"
+curl -Lso "gcc-${GCC_VER}.tar.gz" "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.gz"
+tar xf "gcc-${GCC_VER}.tar.gz"
 mkdir gcc-build && cd gcc-build
 
 ../gcc-${GCC_VER}/configure \
