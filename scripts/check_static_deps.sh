@@ -14,7 +14,6 @@ for lib in libgmp.a libmpfr.a libmpc.a libisl.a libz.a; do
 done
 
 echo "Inspecting libgmp.a symbols..."
-nm "$STATIC_ROOT/lib/libgmp.a" || echo "nm failed"
-nm "$STATIC_ROOT/lib/libgmp.a" | grep -q '__gmpz_init' || { echo "libgmp.a missing expected symbol"; exit 1; }
+nm "$STATIC_ROOT/lib/libgmp.a" | grep -q '___gmpz_add' || { echo "libgmp.a missing expected symbol"; exit 1; }
 
 echo "✅ Static prerequisite installation verified"
