@@ -50,7 +50,15 @@ micromamba install -n gfortran-darwin-"$arch"-"$type" \
 
 micromamba activate gfortran-darwin-"$arch"-"$type"
 PREFIX="$CONDA_PREFIX"
-  
+
+@@ # 3.  Environment is ready – $PREFIX points at it
+ PREFIX="$CONDA_PREFIX"
+
+# ────────────────────────────────────────────────────────────────
+# 4.  Trim unneeded files and arrange runtime libs
+#     (same spirit as the original helper script)
+# ────────────────────────────────────────────────────────────────
+
 #######################################################################
 # 5.  Delete *all* shared libraries and other clutter
 #######################################################################
@@ -63,6 +71,9 @@ find "$PREFIX"/lib \
      ! -name 'libomp*.dylib' \
      ! -name 'libgcc_s*.dylib' \
      ! -name 'libisl*.dylib' \
+     ! -name 'libmpc*.dylib' \
+     ! -name 'libmpfr*.dylib' \
+     ! -name 'libgmp*.dylib' \
      -exec rm -f {} +
 
 rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
