@@ -18,8 +18,9 @@ runs:
     # 2. install micromamba + deps (same recipe you already have)
     - uses: mamba-org/setup-micromamba@v1
       with:
-        init-shell: bash
-        environment-file: cross-src/env.yml   # optional, if you keep deps in YAML
+        init-shell: bash          
+        cache-downloads: true     
+        cache-env: true           
 
     # 3. build the toolchain
     - name: Build static cross-compiler
