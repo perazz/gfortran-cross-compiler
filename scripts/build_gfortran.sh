@@ -55,7 +55,10 @@ PREFIX="$CONDA_PREFIX"
 find "$PREFIX"/lib -maxdepth 1 -name '*.dylib' -exec rm -f {} +
 
 rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
-rm -rf "$PREFIX"/lib/{pkgconfig,clang,*.a}            # remove non-GCC *.a
+
+# Keep static libgfortran / libquadmath / libgcc – we need them later
+# Everything else under lib/*.a can go after we move the keepers.
+rm -rf "$PREFIX"/lib/{pkgconfig,clang}
 
 #######################################################################
 # 5.  For cross builds, move target-side static libs into GCC’s tree
@@ -63,8 +66,18 @@ rm -rf "$PREFIX"/lib/{pkgconfig,clang,*.a}            # remove non-GCC *.a
 if [[ $type == cross ]]; then
   dest="$PREFIX"/lib/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"
   mkdir -p "$dest"
-  mv "$PREFIX"/lib/{libgfortran*.a,libquadmath*.a,libgcc*.a} "$dest"
+
+  shopt -s nullglob          # empty globs disappear instead of erroring
+  for a in "$PREFIX"/lib/libgfortran*.a \
+           "$PREFIX"/lib/libquadmath*.a \
+           "$PREFIX"/lib/libgcc"*.a"; do
+    mv "$a" "$dest/"
+  done
+  shopt -u nullglob
 fi
+
+# Now delete any remaining *.a that we don’t care about
+find "$PREFIX"/lib -maxdepth 1 -name '*.a' -delete
 
 #######################################################################
 # 6.  Point GCC’s linker stub at the system linker
