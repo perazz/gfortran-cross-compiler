@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+set -euo pipefail
 
-########################################################################
+#######################################################################
 # 0.  Enable micromamba shell support so that `micromamba activate` works
-########################################################################
+#######################################################################
 eval "$(micromamba shell hook -s bash)"
 
-########################################################################
-# 1.  Read version / target-arch / build-arch
-#     * They can be passed as positional args
-#     * or come from environment variables set by the workflow
-########################################################################
+#######################################################################
+# 1.  Read inputs
+#######################################################################
 ver=${1:-${GFORTRAN_VERSION:-11.3.0}}   # GCC version to install
 arch=${2:-${TARGET_ARCH:-x86_64}}       # target architecture
 build=${3:-${BUILD_ARCH:-$arch}}        # host (build) architecture
 
-########################################################################
-# 2.  Map arches to conda subdirs and Darwin kernel versions
-########################################################################
+#######################################################################
+# 2.  Map arches to conda sub-dirs and Darwin kernel versions
+#######################################################################
 if [[ $arch == x86_64 ]]; then
   export CONDA_HOST_SUBDIR="osx-64"
   kern_ver=13.4.0
@@ -32,77 +30,78 @@ else
   export CONDA_BUILD_SUBDIR="osx-arm64"
 fi
 
-# native == host == target ; cross == host != target
 type=$([[ $arch == "$build" ]] && echo native || echo cross)
 
-########################################################################
-# 3.  Create a new environment and install the compiler
-########################################################################
+#######################################################################
+# 3.  Create a fresh environment and install the compiler
+#     * libgfortran-devel brings the static archives we want
+#######################################################################
 export CONDA_SUBDIR=$CONDA_BUILD_SUBDIR
 micromamba create -n gfortran-darwin-"$arch"-"$type" \
-  gfortran_impl_"$CONDA_SUBDIR"="$ver" \
-  libgfortran-devel_"$CONDA_SUBDIR"="$ver" --yes
+  gfortran_impl_"$CONDA_BUILD_SUBDIR"="$ver" \
+  libgfortran-devel_"$CONDA_BUILD_SUBDIR"="$ver" --yes
 
+# ── runtime for the HOST side (needed to run gcc itself)
 export CONDA_SUBDIR=$CONDA_HOST_SUBDIR
 micromamba install -n gfortran-darwin-"$arch"-"$type" \
   libgfortran5="$ver" --yes
 
 micromamba activate gfortran-darwin-"$arch"-"$type"
+PREFIX="$CONDA_PREFIX"
 
-########################################################################
-# 4.  Strip unneeded files to keep the package small
-########################################################################
-rm -rf "$CONDA_PREFIX"/lib/{libc++*,*.a,pkgconfig,clang}
-rm -rf "$CONDA_PREFIX"/{include,conda-meta,bin/iconv}
-
-for f in "$CONDA_PREFIX"/lib/{libgmp.dylib,libgmpxx.dylib,libisl.dylib,libiconv.dylib,libmpfr.dylib,libz.dylib,libcharset.dylib,libmpc.dylib}; do
-  install_name_tool -delete_rpath "$CONDA_PREFIX"/lib "$f" || true
-  install_name_tool -delete_rpath "$CONDA_PREFIX"/lib "$f" || true
-  rm "$f"
+#######################################################################
+# 4.  Delete *all* shared libraries and other clutter
+#######################################################################
+mapfile -t dylibs < <(find "$PREFIX"/lib -name '*.dylib' -maxdepth 1)
+for f in "${dylibs[@]}"; do
+  rm -f "$f"
 done
 
-rm "$CONDA_PREFIX"/lib/libiomp5.dylib
+rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
+rm -rf "$PREFIX"/lib/{pkgconfig,clang,*.a}            # remove non-GCC *.a
 
-########################################################################
-# 5.  For cross builds, move target runtime libs into GCC's tree
-########################################################################
+#######################################################################
+# 5.  For cross builds, move target-side static libs into GCC’s tree
+#######################################################################
 if [[ $type == cross ]]; then
-  dest="$CONDA_PREFIX"/lib/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"
+  dest="$PREFIX"/lib/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"
   mkdir -p "$dest"
-  mv "$CONDA_PREFIX"/lib/{libgfortran*,libgomp*,libomp*,libgcc_s*} "$dest"
+  mv "$PREFIX"/lib/{libgfortran*.a,libquadmath*.a,libgcc*.a} "$dest"
 fi
 
-########################################################################
-# 6.  Point GCC's linker stub at the system linker
-########################################################################
-execdir="$CONDA_PREFIX"/libexec/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"
+#######################################################################
+# 6.  Point GCC’s linker stub at the system linker
+#######################################################################
+execdir="$PREFIX"/libexec/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"
 mkdir -p "$execdir"
 ln -sf /usr/bin/ld "$execdir"/ld
 
-########################################################################
-# 7.  Delete the absolute RPATH baked into libgfortran.spec (if a file)
-########################################################################
-specfile="$CONDA_PREFIX"/lib/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"/libgfortran.spec
+#######################################################################
+# 7.  Patch the specs file so every link is static-runtime by default
+#######################################################################
+specfile="$PREFIX"/lib/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"/libgfortran.spec
 if [[ -f $specfile && ! -L $specfile ]]; then
-  sed -i '' "s#-rpath $CONDA_PREFIX/lib##g" "$specfile"
+  # Keep the original for reference
+  cp "$specfile" "${specfile}.orig"
+  # Append static runtime flags to *link_command:
+  sed -i '' -e '/\*link_command:/ s|$| %{!static:-static-libgfortran -static-libquadmath -static-libgcc}|' "$specfile"
 fi
 
-########################################################################
+#######################################################################
 # 8.  Unwrap cc1 if the real binary exists; leave as-is in cross case
-########################################################################
+#######################################################################
 if [[ -f "$execdir"/cc1.bin ]]; then
-  rm -f "$execdir"/cc1          # delete the wrapper script
+  rm -f "$execdir"/cc1
   mv     "$execdir"/cc1.bin "$execdir"/cc1
 fi
 
-########################################################################
-# 9.  Package the environment into a tarball
-########################################################################
-pushd "$CONDA_PREFIX/.." >/dev/null
-grep -ir "$GITHUB_ACTOR" gfortran-darwin-"$arch"-"$type"/ || true
+#######################################################################
+# 9.  Pack the environment
+#######################################################################
+pushd "$PREFIX/.." >/dev/null
 tar -czf gfortran-darwin-"$arch"-"$type".tar.gz \
   gfortran-darwin-"$arch"-"$type"
 popd >/dev/null
 
-mv "$CONDA_PREFIX"/../gfortran-darwin-"$arch"-"$type".tar.gz .
+mv "$PREFIX"/../gfortran-darwin-"$arch"-"$type".tar.gz .
 echo "Created gfortran-darwin-$arch-$type.tar.gz"
