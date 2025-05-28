@@ -16,20 +16,21 @@ mkdir -p "$STATIC_ROOT"
 #--------------------------- 2. Bootstrap env ---------------------------
 eval "$(micromamba shell hook -s bash)"
 
-# force the env-var to match the .condarc setting seen by `micromamba info`
-export MAMBA_ROOT_PREFIX="$(micromamba info 2>/dev/null | awk '/root_prefix/ {print $3}')"
+# Pick ONE absolute prefix and stick to it
+BUILD_ENV_PREFIX="$PWD/.gcc-static-build" 
+rm -rf "$BUILD_ENV_PREFIX"                
 
-micromamba env remove -y -n gcc-static-build || true
-
-micromamba create -y -n gcc-static-build -c conda-forge \
+# create by *path*  (-p) so root-prefix is unambiguous
+micromamba create -y -p "$BUILD_ENV_PREFIX" -c conda-forge \
   clang lld                         \
   make cmake                        \
   autoconf automake libtool         \
   pkg-config texinfo                \
   sed  gawk grep patch curl git
 
-micromamba activate gcc-static-build
-export PATH="$MAMBA_ROOT_PREFIX/envs/gcc-static-build/bin:$PATH"
+# activate the very same prefix
+micromamba activate "$BUILD_ENV_PREFIX"
+export PATH="$BUILD_ENV_PREFIX/bin:$PATH"
 export CC=clang CXX=clang++
 
 # strip out .dylibs from the bootstrap libs so we don’t acci­dentally pick them up
