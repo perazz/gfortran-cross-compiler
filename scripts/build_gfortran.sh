@@ -96,11 +96,14 @@ if [[ $type == cross ]]; then
   done
   shopt -u nullglob
   
-  # Ensure the un-versioned name exists for –lgfortran
-  if [[ -e $dest/libgfortran*.dylib && ! -e $dest/libgfortran.dylib ]]; then
-      ln -s "$(basename "$dest"/libgfortran*.dylib | head -1)" \
-            "$dest/libgfortran.dylib"
-  fi  
+  # Ensure the un-versioned names exist
+  pushd "$dest" >/dev/null
+  for lib in libgfortran libquadmath libgomp libomp libgcc_s; do
+      [[ -e $lib.dylib ]] && continue          # already present
+      verlib=$(ls ${lib}*.dylib 2>/dev/null | head -n1)
+      [[ -n $verlib ]] && ln -s "$verlib" "$lib.dylib"
+  done
+  popd >/dev/null
   
 fi
 
