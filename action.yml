@@ -48,6 +48,9 @@ runs:
         # Unpack, dropping the single leading directory component
         tar -xzf "$TARBALL" -C "$TOOLCHAIN_DIR" --strip-components=1
 
+        # f951 expects libs in <prefix>/bin/lib — add that shim
+        ln -sf ../lib "$TOOLCHAIN_DIR/bin/lib"        
+        
         # Convenience symlinks at the tool-chain root
         ln -sf "$TOOLCHAIN_DIR/bin/gfortran" "$TOOLCHAIN_DIR/cross-gfortran"
         ln -sf "$TOOLCHAIN_DIR/bin/gcc"      "$TOOLCHAIN_DIR/cross-gcc"
