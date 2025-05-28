@@ -33,15 +33,18 @@ runs:
              "$BUILD_ARCH"
 
     # 4. expose wrappers and env vars to later steps
-    - name: Expose FC/CC/CXX
+    - name: Expose FC / CC / CXX
       shell: bash
       run: |
-        TOOLROOT=$(echo $PWD/install-${{ inputs.target_arch }})
-        ln -sf "$TOOLROOT/bin/gfortran" cross-gfortran
-        ln -sf "$TOOLROOT/bin/gcc"      cross-gcc
-        ln -sf "$TOOLROOT/bin/g++"      cross-g++
+        TOOLROOT="$CONDA_PREFIX"            # where the compiler actually lives
+        WRAPPER_DIR="$PWD/cross-src/bin"    # <-- lives in the checkout
 
-        echo "$PWD" >> "$GITHUB_PATH"
+        mkdir -p "$WRAPPER_DIR"
+        ln -sf "$TOOLROOT/bin/gfortran" "$WRAPPER_DIR/cross-gfortran"
+        ln -sf "$TOOLROOT/bin/gcc"      "$WRAPPER_DIR/cross-gcc"
+        ln -sf "$TOOLROOT/bin/g++"      "$WRAPPER_DIR/cross-g++"
+
+        echo "$WRAPPER_DIR" >> "$GITHUB_PATH"
         {
           echo "FC=cross-gfortran"
           echo "CC=cross-gcc"
