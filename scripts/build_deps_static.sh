@@ -47,5 +47,5 @@ build_one () {
 build_one gmp   6.3.0  "gmp-6.3.0.gz"   ""
 build_one mpfr  4.2.1  "mpfr-4.2.1.gz"  "--with-gmp=$STATIC_ROOT"
 build_one mpc   1.3.1  "mpc-1.3.1.gz"   "--with-gmp=$STATIC_ROOT --with-mpfr=$STATIC_ROOT"
-build_one isl   0.26   "isl-0.26.gz"    ""
+build_one isl   0.26   "isl-0.26.gz"    "--with-gmp=$STATIC_ROOT --with-mpfr=$STATIC_ROOT"
 build_one zlib  1.3.1  "zlib-1.3.1.gz"  ""
