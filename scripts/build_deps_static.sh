@@ -44,16 +44,12 @@ build_one () {
   pushd "${pkg}-${ver}"
     
     if [[ "$pkg" == "zlib" ]]; then
-      # manually build static lib and install it
-      make -f Makefile libz.a
-      mkdir -p "$STATIC_ROOT/lib" "$STATIC_ROOT/include"
-      cp libz.a "$STATIC_ROOT/lib"
-      cp zlib.h zconf.h "$STATIC_ROOT/include"
+      ./configure --prefix="$STATIC_ROOT" --static "${cfg_extra[@]}"
     else
       ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared "${cfg_extra[@]}"
-      make -j"$(sysctl -n hw.ncpu)"
-      make install
     fi
+    make -j"$(sysctl -n hw.ncpu)"
+    make install
     
   popd
 }
