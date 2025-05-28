@@ -39,13 +39,19 @@ type=$([[ $arch == "$build" ]] && echo native || echo cross)
 export CONDA_SUBDIR=$CONDA_BUILD_SUBDIR
 micromamba create -n gfortran-darwin-"$arch"-"$type" \
   gfortran_impl_"$CONDA_BUILD_SUBDIR"="$ver" \
-  libgfortran-devel_"$CONDA_BUILD_SUBDIR"="$ver" --yes
-
+  libgfortran-devel_"$CONDA_BUILD_SUBDIR"="$ver" \
+  isl --yes             
+  
 # ── runtime for the HOST side (needed to run gcc itself)
 export CONDA_SUBDIR=$CONDA_HOST_SUBDIR
 micromamba install -n gfortran-darwin-"$arch"-"$type" \
-  libgfortran5="$ver" --yes
+  libgfortran5="$ver" \
+  isl --yes             
 
+ micromamba activate gfortran-darwin-"$arch"-"$type"
+ PREFIX="$CONDA_PREFIX"
+  
+  
 micromamba activate gfortran-darwin-"$arch"-"$type"
 PREFIX="$CONDA_PREFIX"
 
