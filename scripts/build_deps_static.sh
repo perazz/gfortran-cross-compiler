@@ -25,11 +25,14 @@ export PATH="$BUILD_ENV_PREFIX/bin:/usr/bin:$PATH"
 export CC=clang CXX=clang++
 
 build_one () {
-  local pkg=$1 ver=$2 filnm=$3 cfg_extra=$4
+  local pkg=$1 ver=$2 filnm=$3
+  shift 3
+  local cfg_extra=("$@")
+  
   ext="${filnm##*.}"
   tarball="${pkg}-${ver}.${ext}"
   src_tar="downloads/${tarball}"
-
+  
   if [[ ! -f "$src_tar" ]]; then
     echo "ERROR: $src_tar not found."
     exit 1
@@ -38,7 +41,7 @@ build_one () {
   cp "$src_tar" .
   tar xf "$tarball"
   pushd "${pkg}-${ver}"
-    ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared $cfg_extra
+    ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared "${cfg_extra[@]}"  
     make -j"$(sysctl -n hw.ncpu)"
     make install
   popd

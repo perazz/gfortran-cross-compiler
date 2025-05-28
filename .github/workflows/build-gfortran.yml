@@ -42,7 +42,7 @@ jobs:
         curl -Lso downloads/zlib-1.3.1.gz      "$base_url/zlib-1.3.1.gz"
         
     # (2) single call – the matrix already supplies both arches
-    - name: Install dependencies
+    - name: Install static prerequisites
       run: bash scripts/build_deps_static.sh
 
     - name: Verify static prerequisites
