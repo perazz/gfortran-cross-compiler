@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-export WORKDIR=${PWD}
-export STATIC_ROOT="$WORKDIR/static-root"
-export BUILD_ENV_PREFIX="$WORKDIR/.gcc-static-build"
+
+# Resolve the directory of the current script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TOPDIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+export WORKDIR="$TOPDIR"
+export STATIC_ROOT="$TOPDIR/static-root"
+export BUILD_ENV_PREFIX="$TOPDIR/.gcc-static-build"
 
