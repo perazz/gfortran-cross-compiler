@@ -35,6 +35,11 @@ fi
 tar xf "$GCC_TARBALL"
 mkdir gcc-build && cd gcc-build
 
+echo "CC = $CC"
+echo "CXX = $CXX"
+echo "CFLAGS = $CFLAGS"
+echo "CXXFLAGS = $CXXFLAGS"
+echo "LDFLAGS = $LDFLAGS"
 
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin$(uname -r)" \

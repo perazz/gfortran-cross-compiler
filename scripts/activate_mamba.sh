@@ -25,7 +25,9 @@ export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
 # ──────────────────────────────────────────
 export CC="$BUILD_ENV_PREFIX/bin/clang"
 export CXX="$BUILD_ENV_PREFIX/bin/clang++"
-export CFLAGS=" -isysroot $SDKROOT -mmacosx-version-min=11.0"
+export CC="$BUILD_ENV_PREFIX/bin/clang"
+export CXX="$BUILD_ENV_PREFIX/bin/clang++"
+export CFLAGS="-isysroot $SDKROOT -mmacosx-version-min=11.0"
 export CXXFLAGS="$CFLAGS"
-export LDFLAGS="-Wl,-syslibroot,$SDKROOT"
 
+export LDFLAGS="-Wl,-syslibroot,$SDKROOT"
