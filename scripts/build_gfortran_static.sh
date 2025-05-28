@@ -15,13 +15,14 @@ mkdir -p "$STATIC_ROOT"
 
 #--------------------------- 2. Bootstrap env ---------------------------
 eval "$(micromamba shell hook -s bash)"
-micromamba create -y -n gcc-static-build \
-  clang \
-  lld \
-  gnu-binutils \
-  make cmake autoconf automake libtool \
-  gmp-devel-static mpfr-devel-static mpc-devel-static isl-static zlib-static
 
+micromamba create -y -n gcc-static-build -c conda-forge \
+  clang lld                         \
+  make cmake                        \
+  autoconf automake libtool         \
+  pkg-config texinfo                \
+  gsed gawk grep patch curl git      
+  
 micromamba activate gcc-static-build
 export PATH=$CONDA_PREFIX/bin:$PATH
 export CC=clang CXX=clang++
