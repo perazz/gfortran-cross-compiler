@@ -47,6 +47,9 @@ $CXX --version || { echo "clang++ not found or not executable"; exit 1; }
 echo "Testing C++11 support:"
 echo 'int main() { auto x = 42; return x; }' | $CXX -std=c++11 -x c++ -o /tmp/test-cxx11 - || { echo "C++11 test failed"; exit 1; }
 
+export CPPFLAGS="${CPPFLAGS:-} -I$STATIC_ROOT/include"
+export LDFLAGS="${LDFLAGS:-} -L$STATIC_ROOT/lib -Wl,-syslibroot,$SDKROOT"
+
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin$(uname -r)" \
   --host="${BUILD_ARCH}-apple-darwin$(uname -r)" \
