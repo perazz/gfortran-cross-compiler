@@ -48,15 +48,42 @@ micromamba install -n gfortran-darwin-"$arch"-"$type" \
   libgfortran5="$ver" \
   isl --yes             
 
- micromamba activate gfortran-darwin-"$arch"-"$type"
- PREFIX="$CONDA_PREFIX"
-  
-  
 micromamba activate gfortran-darwin-"$arch"-"$type"
 PREFIX="$CONDA_PREFIX"
+  
+# ────────────────────────────────────────────────────────────────
+# 4.  Trim unneeded files and arrange runtime libs
+#     (same spirit as the original helper script)
+# ────────────────────────────────────────────────────────────────
+
+# 4-a) drop C++ headers, static archives, clang bits we never ship
+rm -rf "$PREFIX"/lib/{libc++*,*.a,pkgconfig,clang}
+rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
+
+# 4-b) clean rpaths inside *runtime* dylibs so they are fully reloc-friendly
+#      NOTE: we **keep** libisl, removing only the rpath entries.
+for f in "$PREFIX"/lib/{libgmp.dylib,libgmpxx.dylib,libiconv.dylib,libmpfr.dylib,libz.dylib,libcharset.dylib,libmpc.dylib,libisl.dylib}; do
+    install_name_tool -delete_rpath "$PREFIX/lib" "$f" 2>/dev/null || true
+done
+
+# 4-c) remove Intel OpenMP (unused) to save a bit of space
+rm -f "$PREFIX"/lib/libiomp5.dylib
+
+# 4-d) when building a *cross* tool-chain, place the runtime libraries
+#      next to libgcc so the linker finds them automatically
+if [[ "$type" == "cross" ]]; then
+    mv "$PREFIX"/lib/{libgfortran*,libgomp*,libomp*,libgcc_s*} \
+       "$PREFIX"/lib/gcc/${arch}-apple-darwin${kern_ver}/${ver}
+fi
+
+# 4-e)  GCC front-ends look for libs via @loader_path/../../../../lib
+#       which resolves to  <prefix>/bin/libexec/lib
+#       Create that shim so libisl is always found.
+mkdir -p "$PREFIX"/bin/libexec
+ln -sf ../../lib "$PREFIX"/bin/libexec/lib  
 
 #######################################################################
-# 4.  Delete *all* shared libraries and other clutter
+# 5.  Delete *all* shared libraries and other clutter
 #######################################################################
 find "$PREFIX"/lib -maxdepth 1 -name '*.dylib' -exec rm -f {} +
 
@@ -67,7 +94,7 @@ rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
 rm -rf "$PREFIX"/lib/{pkgconfig,clang}
 
 #######################################################################
-# 5.  For cross builds, move target-side static libs into GCC’s tree
+# 6.  For cross builds, move target-side static libs into GCC’s tree
 #######################################################################
 if [[ $type == cross ]]; then
   dest="$PREFIX"/lib/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"
@@ -86,14 +113,14 @@ fi
 find "$PREFIX"/lib -maxdepth 1 -name '*.a' -delete
 
 #######################################################################
-# 6.  Point GCC’s linker stub at the system linker
+# 7.  Point GCC’s linker stub at the system linker
 #######################################################################
 execdir="$PREFIX"/libexec/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"
 mkdir -p "$execdir"
 ln -sf /usr/bin/ld "$execdir"/ld
 
 #######################################################################
-# 7.  Patch the specs file so every link is static-runtime by default
+# 8.  Patch the specs file so every link is static-runtime by default
 #######################################################################
 specfile="$PREFIX"/lib/gcc/"$arch"-apple-darwin"$kern_ver"/"$ver"/libgfortran.spec
 if [[ -f $specfile && ! -L $specfile ]]; then
@@ -104,7 +131,7 @@ if [[ -f $specfile && ! -L $specfile ]]; then
 fi
 
 #######################################################################
-# 8.  Unwrap cc1 if the real binary exists; leave as-is in cross case
+# 9.  Unwrap cc1 if the real binary exists; leave as-is in cross case
 #######################################################################
 if [[ -f "$execdir"/cc1.bin ]]; then
   rm -f "$execdir"/cc1
