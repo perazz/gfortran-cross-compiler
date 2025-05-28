@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 export MAMBA_NO_PROMPT=1
-export MAMBA_LOG_LEVEL=3         
+export MAMBA_LOG_LEVEL='debug'         
 
 #--------------------------- 1. Parse CLI -------------------------------
 GCC_VER=${1:-${GFORTRAN_VERSION:-11.3.0}}
