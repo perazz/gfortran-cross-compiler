@@ -30,10 +30,10 @@ build_one () {
   local -a cfg_extra=()
   [[ $# -gt 0 ]] && cfg_extra=("$@")
 
-  ext="${filnm##*.}"
-  tarball="${pkg}-${ver}.${ext}"
-  src_tar="downloads/${tarball}"
-  
+  local ext="${filnm##*.}"
+  local tarball="${pkg}-${ver}.${ext}"
+  local src_tar="downloads/${tarball}"
+
   if [[ ! -f "$src_tar" ]]; then
     echo "ERROR: $src_tar not found."
     exit 1
@@ -42,24 +42,15 @@ build_one () {
   cp "$src_tar" .
   tar xf "$tarball"
   pushd "${pkg}-${ver}"
-    ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared "${cfg_extra[@]}"  
+    ./configure --prefix="$STATIC_ROOT" --enable-static --disable-shared "${cfg_extra[@]}"
     make -j"$(sysctl -n hw.ncpu)"
     make install
   popd
 }
 
 
-build_one gmp   6.3.0  gmp-6.3.0.gz
-
-build_one mpfr  4.2.1  mpfr-4.2.1.gz \
-  --with-gmp="$STATIC_ROOT"
-
-build_one mpc   1.3.1  mpc-1.3.1.gz \
-  --with-gmp="$STATIC_ROOT" \
-  --with-mpfr="$STATIC_ROOT"
-
-build_one isl   0.26   isl-0.26.gz \
-  --with-gmp="$STATIC_ROOT" \
-  --with-mpfr="$STATIC_ROOT"
-
-build_one zlib  1.3.1  zlib-1.3.1.gz
+build_one gmp   6.3.0  "gmp-6.3.0.gz"
+build_one mpfr  4.2.1  "mpfr-4.2.1.gz"  "--with-gmp=$STATIC_ROOT"
+build_one mpc   1.3.1  "mpc-1.3.1.gz"   "--with-gmp=$STATIC_ROOT" "--with-mpfr=$STATIC_ROOT"
+build_one isl   0.26   "isl-0.26.gz"    "--with-gmp=$STATIC_ROOT" "--with-mpfr=$STATIC_ROOT"
+build_one zlib  1.3.1  "zlib-1.3.1.gz"
