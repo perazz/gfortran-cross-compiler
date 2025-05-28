@@ -95,12 +95,13 @@ if [[ $type == cross ]]; then
     mv "$f" "$dest/"
   done
   shopt -u nullglob
-fi
-
-# Ensure the un-versioned name exists for –lgfortran
-if [[ -e $dest/libgfortran*.dylib && ! -e $dest/libgfortran.dylib ]]; then
-    ln -s "$(basename "$dest"/libgfortran*.dylib | head -1)" \
-          "$dest/libgfortran.dylib"
+  
+  # Ensure the un-versioned name exists for –lgfortran
+  if [[ -e $dest/libgfortran*.dylib && ! -e $dest/libgfortran.dylib ]]; then
+      ln -s "$(basename "$dest"/libgfortran*.dylib | head -1)" \
+            "$dest/libgfortran.dylib"
+  fi  
+  
 fi
 
 # Now delete any remaining *.a that we don’t care about
