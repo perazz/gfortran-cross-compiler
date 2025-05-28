@@ -51,14 +51,6 @@ micromamba install -n gfortran-darwin-"$arch"-"$type" \
 micromamba activate gfortran-darwin-"$arch"-"$type"
 PREFIX="$CONDA_PREFIX"
 
-@@ # 3.  Environment is ready – $PREFIX points at it
- PREFIX="$CONDA_PREFIX"
-
-# ────────────────────────────────────────────────────────────────
-# 4.  Trim unneeded files and arrange runtime libs
-#     (same spirit as the original helper script)
-# ────────────────────────────────────────────────────────────────
-
 #######################################################################
 # 5.  Delete *all* shared libraries and other clutter
 #######################################################################
