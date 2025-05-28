@@ -52,19 +52,23 @@ jobs:
     - name: Verify static prerequisites
       run: bash scripts/check_static_deps.sh      
       
-    - name: Build compiler
-      run: >
-        bash scripts/build_gfortran_static.sh
-        "${{ matrix.gcc }}"
-        "${{ matrix.target_arch }}"
-        "${{ matrix.build_arch }}"        
+    - name: Build compiler        
+      run: |
+        mkdir -p gcc‐build
+        cd gcc‐build
+        bash ../scripts/build_gfortran_static.sh \
+          "${{ matrix.gcc }}" \
+          "${{ matrix.target_arch }}" \
+          "${{ matrix.build_arch }}" \
+         2>&1 | tee ../configure-output.log        
         
     - name: Show gcc-config.log
       if: failure()                 # run only when a previous step fails
       run: |
         echo '──── gcc-build/config.log ────'
-        cat gcc-build/config.log || true     # adjust path if yours differs
-        echo '──────────────────────────────'   
+        cat gcc-build/config.log || true     
+        echo '─── configure-output.log ───'
+        cat configure-output.log || true        
         
     # (2 b) compute a checksum that travels with the tarball ──────────────
     - name: Compute SHA-256
