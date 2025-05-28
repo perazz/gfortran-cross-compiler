@@ -21,7 +21,7 @@ micromamba create -y -n gcc-static-build -c conda-forge \
   make cmake                        \
   autoconf automake libtool         \
   pkg-config texinfo                \
-  gsed gawk grep patch curl git      
+  sed gawk grep patch curl git      
   
 micromamba activate gcc-static-build
 export PATH=$CONDA_PREFIX/bin:$PATH
