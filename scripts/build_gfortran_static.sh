@@ -16,18 +16,20 @@ mkdir -p "$STATIC_ROOT"
 #--------------------------- 2. Bootstrap env ---------------------------
 eval "$(micromamba shell hook -s bash)"
 
-# wipe any leftover env from a prior run (ignore error if it isn't there)
-micromamba env remove -y -n gcc-static-build || true
+# always use the *same* root-prefix for remove, create and activate
+ROOT_PREFIX=$(micromamba info --root-prefix)
 
-micromamba create -y -n gcc-static-build -c conda-forge \
+micromamba env remove -y -p "$ROOT_PREFIX/envs/gcc-static-build" || true
+
+micromamba create -y -p "$ROOT_PREFIX/envs/gcc-static-build" -c conda-forge \
   clang lld                         \
   make cmake                        \
   autoconf automake libtool         \
   pkg-config texinfo                \
-  sed gawk grep patch curl git      
-  
-micromamba activate gcc-static-build
-export PATH=$CONDA_PREFIX/bin:$PATH
+  sed  gawk grep patch curl git
+
+micromamba activate "$ROOT_PREFIX/envs/gcc-static-build"
+export PATH="$ROOT_PREFIX/envs/gcc-static-build/bin:$PATH"
 export CC=clang CXX=clang++
 
 # strip out .dylibs from the bootstrap libs so we don’t acci­dentally pick them up
