@@ -1,6 +1,6 @@
 name: Setup cross-compiler (build on the fly)
-description: >
-  Builds a static gfortran/gcc cross-toolchain for macOS inside the caller�s job.
+description: Builds a (mostly) static gfortran/gcc toolchain for macOS runners.
+
 inputs:
   gcc:
     description: GCC version (major.minor.patch)
@@ -8,48 +8,51 @@ inputs:
   target_arch:
     description: Target architecture (arm64 | x86_64)
     required: true
+
 runs:
   using: composite
   steps:
-    # 1. checkout THIS repository (the action�s source)
+    # 1️⃣  Get the action’s own source so scripts are available
     - uses: actions/checkout@v4
       with: { path: cross-src }
 
-    # 2. install micromamba + deps (same recipe you already have)
+    # 2️⃣  Install micromamba (no env file)
     - uses: mamba-org/setup-micromamba@v1
       with:
-        init-shell: bash          
-        cache-downloads: true     
-        cache-env: true           
+        init-shell: bash
+        cache-downloads: true
+        cache-env: true
 
-    # 3. build the toolchain
+    # 3️⃣  Build the toolchain and remember where it lives
     - name: Build static cross-compiler
       shell: bash
       run: |
-        BUILD_ARCH=$(uname -m)                # arm64 or x86_64
+        BUILD_ARCH=$(uname -m)
         bash cross-src/scripts/build_gfortran.sh \
              "${{ inputs.gcc }}" \
              "${{ inputs.target_arch }}" \
              "$BUILD_ARCH"
 
-    # 4. expose wrappers and env vars to later steps
+        # Make the env path available to the next step
+        echo "TOOLROOT=$CONDA_PREFIX" >> "$GITHUB_ENV"
+
+    # 4️⃣  Create lightweight wrappers + env vars
     - name: Expose FC / CC / CXX
       shell: bash
       run: |
-        TOOLROOT="$CONDA_PREFIX"            # where the compiler actually lives
-        WRAPPER_DIR="$PWD/cross-src/bin"    # <-- lives in the checkout
-
+        WRAPPER_DIR="$PWD/cross-src/bin"
         mkdir -p "$WRAPPER_DIR"
+
         ln -sf "$TOOLROOT/bin/gfortran" "$WRAPPER_DIR/cross-gfortran"
         ln -sf "$TOOLROOT/bin/gcc"      "$WRAPPER_DIR/cross-gcc"
         ln -sf "$TOOLROOT/bin/g++"      "$WRAPPER_DIR/cross-g++"
 
         # Put wrappers on PATH for subsequent *job* steps
-        echo "PATH=$WRAPPER_DIR:$PATH" >> "$GITHUB_ENV"        
-        
-        echo "$WRAPPER_DIR" >> "$GITHUB_PATH"
+        echo "PATH=$WRAPPER_DIR:$PATH" >> "$GITHUB_ENV"
+
+        # Point common build vars straight at the wrappers
         {
-          echo "FC=cross-gfortran"
-          echo "CC=cross-gcc"
-          echo "CXX=cross-g++"
+          echo "FC=$WRAPPER_DIR/cross-gfortran"
+          echo "CC=$WRAPPER_DIR/cross-gcc"
+          echo "CXX=$WRAPPER_DIR/cross-g++"
         } >> "$GITHUB_ENV"
