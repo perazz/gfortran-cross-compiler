@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euxo pipefail
+export MAMBA_NO_PROMPT=1
+export MAMBA_LOG_LEVEL=3         
 
 #--------------------------- 1. Parse CLI -------------------------------
 GCC_VER=${1:-${GFORTRAN_VERSION:-11.3.0}}
@@ -13,11 +15,13 @@ WORKDIR=${PWD}
 STATIC_ROOT=$WORKDIR/static-root
 mkdir -p "$STATIC_ROOT"
 
-#--------------------------- 2. Bootstrap env ---------------------------
+#######################################################################
+# Enable micromamba shell support so that `micromamba activate` works
+#######################################################################
 eval "$(micromamba shell hook -s bash)"
 
 # Pick ONE absolute prefix and stick to it
-BUILD_ENV_PREFIX="$PWD/.gcc-static-build" 
+BUILD_ENV_PREFIX="$WORKDIR/.gcc-static-build" 
 rm -rf "$BUILD_ENV_PREFIX"                
 
 # create by *path*  (-p) so root-prefix is unambiguous
