@@ -69,7 +69,7 @@ find "$PREFIX"/lib \
      ! -name 'libquadmath*.dylib' \
      ! -name 'libm*.dylib' \
      ! -name 'libSystem*.dylib' \
-     ! -name 'libc*.dylib' \     
+     ! -name 'libc*.dylib' \
      -exec rm -f {} +
 
 rm -rf "$PREFIX"/{include,conda-meta,bin/iconv}
