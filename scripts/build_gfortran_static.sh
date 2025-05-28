@@ -42,8 +42,8 @@ find "$CONDA_PREFIX/lib" -name '*.dylib' -delete
 
 #--------------------------- 3. Build static prerequisites --------------
 build_one () {
-  local pkg=$1 ver=$2 url=$3 cfg_extra=$4
-  ext="${url##*.}"  # "gz" or "xz"
+  local pkg=$1 ver=$2 filnm=$3 cfg_extra=$4
+  ext="${filnm##*.}"  # "gz" or "xz"
   tarball="${pkg}-${ver}.tar.${ext}"
   src_tar="downloads/${tarball}"  # assumes pre-download to this folder
 
@@ -61,11 +61,11 @@ build_one () {
   popd
 }
 
-build_one gmp   6.3.0  "https://gmplib.org/download/gmp/gmp-6.3.0.tar.gz"   ""
-build_one mpfr  4.2.1  "https://www.mpfr.org/mpfr-4.2.1/mpfr-4.2.1.tar.gz"  "--with-gmp=$STATIC_ROOT"
-build_one mpc   1.3.1  "https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz"        "--with-gmp=$STATIC_ROOT --with-mpfr=$STATIC_ROOT"
-build_one isl   0.26   "http://isl.gforge.inria.fr/isl-0.26.tar.gz"          ""
-build_one zlib  1.3.1  "https://zlib.net/zlib-1.3.1.tar.gz"                  ""
+build_one gmp   6.3.0  "gmp-6.3.0.tar.gz"   ""
+build_one mpfr  4.2.1  "mpfr-4.2.1.tar.gz"  "--with-gmp=$STATIC_ROOT"
+build_one mpc   1.3.1  "mpc-1.3.1.tar.gz"   "--with-gmp=$STATIC_ROOT --with-mpfr=$STATIC_ROOT"
+build_one isl   0.26   "isl-0.26.tar.gz"    ""
+build_one zlib  1.3.1  "zlib-1.3.1.tar.gz"  ""
 
 export CPPFLAGS="-I$STATIC_ROOT/include"
 export LDFLAGS="-L$STATIC_ROOT/lib -static"
