@@ -44,6 +44,9 @@ runs:
         ln -sf "$TOOLROOT/bin/gcc"      "$WRAPPER_DIR/cross-gcc"
         ln -sf "$TOOLROOT/bin/g++"      "$WRAPPER_DIR/cross-g++"
 
+        # Put wrappers on PATH for subsequent *job* steps
+        echo "PATH=$WRAPPER_DIR:$PATH" >> "$GITHUB_ENV"        
+        
         echo "$WRAPPER_DIR" >> "$GITHUB_PATH"
         {
           echo "FC=cross-gfortran"
