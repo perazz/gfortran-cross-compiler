@@ -26,7 +26,3 @@ export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
 export CC="$BUILD_ENV_PREFIX/bin/clang -isysroot $SDKROOT -mmacosx-version-min=11.0"
 export CXX="$BUILD_ENV_PREFIX/bin/clang++ -isysroot $SDKROOT -mmacosx-version-min=11.0"
 
-# ──────────────────────────────────────────
-# 5. pass the SDK root to the linker as well
-# ──────────────────────────────────────────
-export LDFLAGS="-Wl,-syslibroot,$SDKROOT"

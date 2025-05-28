@@ -9,10 +9,6 @@ BUILD_ARCH=${3:-$TARGET_ARCH}
 KERN_VER=$([[ $TARGET_ARCH == x86_64 ]] && echo 13.4.0 || echo 20.0.0)
 TRIPLE="${TARGET_ARCH}-apple-darwin${KERN_VER}"
 
-export CC=clang CXX=clang++
-export CPPFLAGS="-I$STATIC_ROOT/include"
-export LDFLAGS="-L$STATIC_ROOT/lib -static"
-
 GCC_TARBALL="gcc-${GCC_VER}.tar.gz"
 GCC_URLS=(
   "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VER}/${GCC_TARBALL}"
