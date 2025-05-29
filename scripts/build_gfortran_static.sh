@@ -64,9 +64,13 @@ ORIG_CXXFLAGS="$CXXFLAGS"
 # Override for configure step to ensure proper cross target detection (gcc bug)
 export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
 
+# locate Apple’s binutils via xcrun
+export AS_FOR_TARGET=$(xcrun -f as)
+export LD_FOR_TARGET=$(xcrun -f ld)
+
 ../gcc-${GCC_VER}/configure \
-  --build="${BUILD_ARCH}-apple-darwin$(uname -r)" \
-  --host="${BUILD_ARCH}-apple-darwin$(uname -r)" \
+  --build="${BUILD_ARCH}-apple-darwin" \
+  --host="${BUILD_ARCH}-apple-darwin" \
   --target="$TRIPLE" \
   --prefix="$STATIC_ROOT" \
   --with-sysroot="$SDKROOT" \
@@ -84,9 +88,8 @@ export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
   --with-system-zlib \
   CFLAGS_FOR_TARGET="$CFLAGS_FOR_TARGET" \
   CXXFLAGS_FOR_TARGET="$CXXFLAGS_FOR_TARGET" \
-  LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET" \
-  AS_FOR_TARGET=$(xcrun -f as)
-
+  LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET" 
+  
 # Restore host CXXFLAGS so host tools build correctly
 export CXXFLAGS="$ORIG_CXXFLAGS"
     
