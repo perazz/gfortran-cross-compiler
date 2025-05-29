@@ -61,7 +61,7 @@ export LDFLAGS="${LDFLAGS:-} -L$STATIC_ROOT/lib -Wl,-syslibroot,$SDKROOT"
 # Save original host build flags (e.g. Clang flags from Conda)
 ORIG_CXXFLAGS="$CXXFLAGS"
 
-# Override for configure step to ensure proper cross target detection
+# Override for configure step to ensure proper cross target detection (gcc bug)
 export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
 
 ../gcc-${GCC_VER}/configure \
@@ -83,7 +83,8 @@ export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
   --with-system-zlib \
   CFLAGS_FOR_TARGET="$CFLAGS_FOR_TARGET" \
   CXXFLAGS_FOR_TARGET="$CXXFLAGS_FOR_TARGET" \
-  LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET"
+  LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET" \
+  AS_FOR_TARGET=$(xcrun -f as)
 
 # Restore host CXXFLAGS so host tools build correctly
 export CXXFLAGS="$ORIG_CXXFLAGS"
