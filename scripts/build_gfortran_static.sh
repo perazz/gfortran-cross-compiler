@@ -66,7 +66,6 @@ export RANLIB_FOR_TARGET=$(xcrun -f ranlib)
 
 export CONFIG_SITE="$SCRIPT_DIR/config.site"
 
-mkdir -p gcc-build && cd gcc-build
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin" \
   --host="${BUILD_ARCH}-apple-darwin" \
