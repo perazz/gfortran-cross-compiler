@@ -8,27 +8,10 @@ BUILD_ARCH=${3:-$TARGET_ARCH}
 
 source "$(dirname "$0")/activate_mamba.sh" "$TARGET_ARCH" "$BUILD_ARCH"
 
-
-GCC_TARBALL="gcc-${GCC_VER}.tar.gz"
-GCC_URLS=(
-  "https://github.com/gcc-mirror/gcc/archive/refs/tags/releases/gcc-${GCC_VER}.tar.gz"
-  "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.gz"
-  "https://ftpmirror.gnu.org/gcc/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.gz"
-)
-
-# Try each URL with retries
-for url in "${GCC_URLS[@]}"; do
-  echo "Attempting download from $url"
-  if curl -L --retry 5 --retry-delay 3 -o "$GCC_TARBALL" "$url"; then
-    break
-  else
-    echo "Failed to download from $url"
-  fi
-done
-
-# Check result
-if [[ ! -f "$GCC_TARBALL" ]]; then
-  echo "ERROR: Failed to download GCC tarball from all sources"
+# Use locally-uploaded release artifact
+GCC_TARBALL="downloads/gcc-${GCC_VER}.tar.gz"
+if [[ ! -r "$GCC_TARBALL" ]]; then
+  echo "ERROR: gcc tarball not found at $GCC_TARBALL"
   exit 1
 fi
 
@@ -41,7 +24,7 @@ if [[ -d "gcc-releases-gcc-${GCC_VER}" ]]; then
 fi
 
 # patches
-patch -p1 -d "gcc-${GCC_VER}" < "$SCRIPT_DIR/emutls.patch"
+# patch -p1 < "$SCRIPT_DIR/emutls.patch"
 
 # Proceed to build directory
 mkdir gcc-build && cd gcc-build
