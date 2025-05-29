@@ -64,6 +64,8 @@ export LD_FOR_TARGET=$(xcrun -f ld)
 export AR_FOR_TARGET=$(xcrun -f ar)
 export RANLIB_FOR_TARGET=$(xcrun -f ranlib)
 
+export CONFIG_SITE="$SCRIPT_DIR/config.site"
+
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin" \
   --host="${BUILD_ARCH}-apple-darwin" \
