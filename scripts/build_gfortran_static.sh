@@ -73,7 +73,7 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   --prefix="$STATIC_ROOT" \
   --with-sysroot="$SDKROOT" \
   --enable-languages=c,c++,fortran \
-  --disable-multilib --disable-nls \
+  --disable-multilib --disable-nls --disable-tls \
   --disable-shared --enable-static \
   --with-gmp-include="$STATIC_ROOT/include" \
   --with-gmp-lib="$STATIC_ROOT/lib" \
@@ -86,9 +86,7 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   CFLAGS_FOR_TARGET="$CFLAGS_FOR_TARGET" \
   CXXFLAGS_FOR_TARGET="$CXXFLAGS_FOR_TARGET" \
   LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET" 
-  
-
-    
+      
 make -j"$(sysctl -n hw.ncpu)" \
   all-gcc \
   all-target-libgcc \
