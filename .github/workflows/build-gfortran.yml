@@ -69,22 +69,35 @@ jobs:
         cat gcc-build/config.log || true     
         echo '─── configure-output.log ───'
         cat configure-output.log || true        
-        
+
+    # (2 a) test the compiler ─────────────────────────────────────────────
+    - name: Test built gfortran
+      run: |
+        bash scripts/test_gfortran.sh \
+          "${{ matrix.build_arch }}" \
+          "${{ matrix.target_arch }}" \
+          "static-root"
+                
     # (2 b) compute a checksum that travels with the tarball ──────────────
     - name: Compute SHA-256
-      id: sha256
       run: |
         TARBALL=$(ls gfortran-darwin-${{ matrix.target_arch }}-*.tar.gz)
         shasum -a 256 "$TARBALL" > \
-          "gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}.sha256"   
-
+          "gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}.sha256"
+          
     # (3) upload whatever tarballs were produced in this job ────────────────
-    - name: Upload artefacts
+    - name: Upload gfortran tarball
       uses: actions/upload-artifact@v4
       with:
-        name: gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}
-        path: |
-          gfortran-darwin-${{ matrix.target_arch }}-*.tar.gz
-          gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}.sha256
+        name: gfortran-tarball-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}
+        path: gfortran-darwin-${{ matrix.target_arch }}-${{ matrix.build_arch }}.static.tar.gz
+
+    - name: Upload gfortran SHA256 checksum
+      uses: actions/upload-artifact@v4
+      with:
+        name: gfortran-sha256-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}
+        path: gfortran-${{ matrix.target_arch }}-${{ matrix.build_arch }}-${{ matrix.gcc }}.sha256
+
+
 
         

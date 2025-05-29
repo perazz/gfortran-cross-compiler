@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euxo pipefail
+set -x # trace every command
 
 source "$(dirname "$0")/activate_mamba.sh"
 
@@ -75,5 +76,12 @@ cd ..
 find "$STATIC_ROOT" -name '*.dylib' -delete
 ln -sf ../lib "$STATIC_ROOT/bin/lib"
 
-tar -C "$STATIC_ROOT/.." -czf "gfortran-darwin-${TARGET_ARCH}-${BUILD_ARCH}.static.tar.gz" "$(basename "$STATIC_ROOT")"
-echo "Wrote $(pwd)/gfortran-darwin-${TARGET_ARCH}-${BUILD_ARCH}.static.tar.gz"
+echo ">>> STATIC_ROOT is: $STATIC_ROOT"
+echo ">>> Listing install tree:"
+ls -R "$STATIC_ROOT"
+
+echo ">>> Now packaging into tarball…"
+tarball="gfortran-darwin-${TARGET_ARCH}-${BUILD_ARCH}.static.tar.gz"
+tar -C "$(dirname "$STATIC_ROOT")" -czf "$TOPDIR/$tarball" "$(basename "$STATIC_ROOT")"
+echo "Wrote $TOPDIR/$tarball"
+
