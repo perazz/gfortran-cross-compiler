@@ -1,13 +1,13 @@
---- a/libgcc/config/t-darwin
-+++ b/libgcc/config/t-darwin
-@@ # Make the emutls crt as a convenience lib so that it can be linked
--libemutls_w.a: emutls_s.o
--	$(AR_CREATE_FOR_TARGET) $@ $<
--	$(RANLIB_FOR_TARGET) $@
-+libemutls_w.a: emutls_s.o
-+	$(AR_CREATE_FOR_TARGET) $@ $<
-+	$(RANLIB_FOR_TARGET) $@
-+
-+# If we donÕt have emutls.S, fall back to compiling emutls_s.o from emutls.c:
+--- libgcc/config/t-darwin.orig	2025-05-29 18:57:32
++++ libgcc/config/t-darwin	2025-05-29 18:58:26
+@@ -24,6 +24,10 @@
+ 	$(AR_CREATE_FOR_TARGET) $@ $<
+ 	$(RANLIB_FOR_TARGET) $@
+ 
++# Fallback: if no emutls.S, build emutls_s.o from the C version
 +emutls_s.o: $(srcdir)/libgcc/emutls.c
 +	$(CC_FOR_TARGET) $(HOST_LIBGCC2_CFLAGS) -c $< -o $@
++
+ # Patch to __Unwind_Find_Enclosing_Function for Darwin10.
+ # This needs to be built for darwin10, regardless of the current platform
+ # version.
