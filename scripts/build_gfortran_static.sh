@@ -62,7 +62,7 @@ export LDFLAGS="${LDFLAGS:-} -L$STATIC_ROOT/lib -Wl,-syslibroot,$SDKROOT"
 ORIG_CXXFLAGS="$CXXFLAGS"
 
 # Override for configure step to ensure proper cross target detection (gcc bug)
-export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
+# export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
 
 # locate Apple’s binutils via xcrun
 export AS_FOR_TARGET=$(xcrun -f as)
