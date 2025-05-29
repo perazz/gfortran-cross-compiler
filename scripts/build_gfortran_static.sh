@@ -58,6 +58,12 @@ echo 'int main() { auto x = 42; return x; }' | $CXX -std=c++11 -x c++ -o /tmp/te
 export CPPFLAGS="${CPPFLAGS:-} -I$STATIC_ROOT/include"
 export LDFLAGS="${LDFLAGS:-} -L$STATIC_ROOT/lib -Wl,-syslibroot,$SDKROOT"
 
+# Save original host build flags (e.g. Clang flags from Conda)
+ORIG_CXXFLAGS="$CXXFLAGS"
+
+# Override for configure step to ensure proper cross target detection
+export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
+
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin$(uname -r)" \
   --host="${BUILD_ARCH}-apple-darwin$(uname -r)" \
@@ -79,6 +85,9 @@ export LDFLAGS="${LDFLAGS:-} -L$STATIC_ROOT/lib -Wl,-syslibroot,$SDKROOT"
   CXXFLAGS_FOR_TARGET="$CXXFLAGS_FOR_TARGET" \
   LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET"
 
+# Restore host CXXFLAGS so host tools build correctly
+export CXXFLAGS="$ORIG_CXXFLAGS"
+    
 make -j"$(sysctl -n hw.ncpu)" all-gcc all-target-libgcc all-target-libgfortran all-target-libquadmath
 make install-strip
 cd ..
