@@ -44,7 +44,7 @@ jobs:
         curl -Lso downloads/mpc-1.3.1.gz       "$base_url/mpc-1.3.1.gz"
         curl -Lso downloads/isl-0.26.gz        "$base_url/isl-0.26.gz"
         curl -Lso downloads/zlib-1.3.1.gz      "$base_url/zlib-1.3.1.gz"
-        curl -Lso downloads/gcc-${GCC_VER}.tar.gz "$base_url/gcc-${GCC_VER}.tar.gz"
+        curl -Lso downloads/gcc-${{ matrix.gcc }}.tar.gz "$base_url/gcc-${{ matrix.gcc }}.tar.gz"
         
     # (2) Setup mamba environment and install static libraries
     - name: Install static prerequisites
