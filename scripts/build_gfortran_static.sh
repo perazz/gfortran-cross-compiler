@@ -2,13 +2,12 @@
 set -euxo pipefail
 set -x # trace every command
 
-source "$(dirname "$0")/activate_mamba.sh"
-
 GCC_VER=${1:-11.3.0}
 TARGET_ARCH=${2:-x86_64}
 BUILD_ARCH=${3:-$TARGET_ARCH}
-KERN_VER=$([[ $TARGET_ARCH == x86_64 ]] && echo 13.4.0 || echo 20.0.0)
-TRIPLE="${TARGET_ARCH}-apple-darwin${KERN_VER}"
+
+source "$(dirname "$0")/activate_mamba.sh" "$TARGET_ARCH" "$BUILD_ARCH"
+
 
 GCC_TARBALL="gcc-${GCC_VER}.tar.gz"
 GCC_URLS=(
@@ -76,9 +75,9 @@ export LDFLAGS="${LDFLAGS:-} -L$STATIC_ROOT/lib -Wl,-syslibroot,$SDKROOT"
   --with-mpc-lib="$STATIC_ROOT/lib" \
   --with-isl="$STATIC_ROOT" \
   --with-system-zlib \
-  CFLAGS_FOR_TARGET="-O2" \
-  CXXFLAGS_FOR_TARGET="-O2" \
-  LDFLAGS_FOR_TARGET="-static"
+  CFLAGS_FOR_TARGET="$CFLAGS_FOR_TARGET" \
+  CXXFLAGS_FOR_TARGET="$CXXFLAGS_FOR_TARGET" \
+  LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET"
 
 make -j"$(sysctl -n hw.ncpu)" all-gcc all-target-libgcc all-target-libgfortran all-target-libquadmath
 make install-strip
