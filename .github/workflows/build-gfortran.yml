@@ -56,11 +56,14 @@ jobs:
       run: |
         mkdir -p gcc-build
         cd gcc-build
-        bash ../scripts/build_gfortran_static.sh \
-          "${{ matrix.gcc }}" \
-          "${{ matrix.target_arch }}" \
-          "${{ matrix.build_arch }}" \
-         2>&1 | tee ../configure-output.log        
+        {
+          bash ../scripts/build_gfortran_static.sh \
+            "${{ matrix.gcc }}" \
+            "${{ matrix.target_arch }}" \
+            "${{ matrix.build_arch }}"
+        } 2>&1 | tee ../configure-output.log
+
+        test ${PIPESTATUS[0]} -eq 0    
         
     - name: Show gcc-config.log
       if: failure()                 # run only when a previous step fails
