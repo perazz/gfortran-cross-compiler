@@ -72,6 +72,7 @@ export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
   --with-sysroot="$SDKROOT" \
   --enable-languages=c,c++,fortran \
   --disable-shared --enable-static \
+  --with-static-standard-libraries \
   --disable-multilib --disable-nls \
   --with-gmp-include="$STATIC_ROOT/include" \
   --with-gmp-lib="$STATIC_ROOT/lib" \
