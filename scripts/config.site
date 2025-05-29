@@ -1,10 +1,21 @@
 # config.site — macOS cross‐compiler autotools overrides
 
-# Don’t test for fflush_unlocked (not present in Darwin’s libc)
+# —————————————————————————————————————————————————————
+# Treat these functions as “not present” in Darwin’s libc:
+# —————————————————————————————————————————————————————
+
+# Don’t test for fflush_unlocked (not provided on macOS)
 ac_cv_func_fflush_unlocked=no
 
-# Don’t test for strverscmp declaration (not present in Darwin’s libc)
+# Don’t test for strverscmp declaration (GNU extension)
 ac_cv_decl_strverscmp=no
 
-# Don’t test for pstat_getdynamic (not provided on macOS)
+# Don’t test for pstat_getdynamic (BSD-only API)
 ac_cv_func_pstat_getdynamic=no
+
+# —————————————————————————————————————————————————————
+# Treat this header as “not present” on Darwin:
+# —————————————————————————————————————————————————————
+
+# Don’t test for <minix/config.h>
+ac_cv_header_minix_config_h=no
