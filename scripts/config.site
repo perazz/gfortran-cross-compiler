@@ -1,7 +1,10 @@
-# config.site — macOS cross-compiler autotools overrides
+# config.site ‚Äî macOS cross‚Äêcompiler autotools overrides
 
-# Don’t test for fflush_unlocked (not present in Darwin’s libc)
+# Don‚Äôt test for fflush_unlocked (not present in Darwin‚Äôs libc)
 ac_cv_func_fflush_unlocked=no
 
-# Don’t test for strverscmp declaration (not present in Darwin’s libc)
+# Don‚Äôt test for strverscmp declaration (not present in Darwin‚Äôs libc)
 ac_cv_decl_strverscmp=no
+
+# Don‚Äôt test for pstat_getdynamic (not provided on macOS)
+ac_cv_func_pstat_getdynamic=no
