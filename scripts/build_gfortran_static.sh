@@ -9,14 +9,14 @@ BUILD_ARCH=${3:-$TARGET_ARCH}
 source "$(dirname "$0")/activate_mamba.sh" "$TARGET_ARCH" "$BUILD_ARCH"
 
 # Use locally-uploaded release artifact
-GCC_TARBALL="downloads/gcc-${GCC_VER}.tar.gz"
+GCC_TARBALL="$TOPDIR/downloads/gcc-${GCC_VER}.tar.gz"
 if [[ ! -r "$GCC_TARBALL" ]]; then
   echo "ERROR: gcc tarball not found at $GCC_TARBALL"
   exit 1
 fi
 
 # Extract GCC tarball
-tar xf "$GCC_TARBALL"
+tar -C . -xf "$GCC_TARBALL"
 
 # Normalize extracted directory name if needed (GitHub mirror creates 'gcc-releases-gcc-<ver>')
 if [[ -d "gcc-releases-gcc-${GCC_VER}" ]]; then
