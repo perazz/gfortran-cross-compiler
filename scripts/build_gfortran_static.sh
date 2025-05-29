@@ -24,7 +24,7 @@ if [[ -d "gcc-releases-gcc-${GCC_VER}" ]]; then
 fi
 
 # patches
-patch -p1 < "$SCRIPT_DIR/emutls.patch"
+patch -p1 -d "gcc-${GCC_VER}" < "$SCRIPT_DIR/emutls.patch"
 
 # Proceed to build directory
 mkdir gcc-build && cd gcc-build
