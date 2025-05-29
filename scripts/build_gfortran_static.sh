@@ -72,6 +72,7 @@ export RANLIB_FOR_TARGET=$(xcrun -f ranlib)
   --with-sysroot="$SDKROOT" \
   --enable-languages=c,c++,fortran \
   --disable-multilib --disable-nls \
+  --disable-shared --enable-static \
   --with-gmp-include="$STATIC_ROOT/include" \
   --with-gmp-lib="$STATIC_ROOT/lib" \
   --with-mpfr-include="$STATIC_ROOT/include" \
