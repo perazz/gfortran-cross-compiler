@@ -12,8 +12,9 @@ TRIPLE="${TARGET_ARCH}-apple-darwin${KERN_VER}"
 
 GCC_TARBALL="gcc-${GCC_VER}.tar.gz"
 GCC_URLS=(
-  "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VER}/${GCC_TARBALL}"
-  "https://ftpmirror.gnu.org/gcc/gcc-${GCC_VER}/${GCC_TARBALL}"
+  "https://github.com/gcc-mirror/gcc/archive/refs/tags/releases/gcc-${GCC_VER}.tar.gz"
+  "https://ftp.gnu.org/gnu/gcc/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.gz"
+  "https://ftpmirror.gnu.org/gcc/gcc-${GCC_VER}/gcc-${GCC_VER}.tar.gz"
 )
 
 # Try each URL with retries
@@ -32,8 +33,15 @@ if [[ ! -f "$GCC_TARBALL" ]]; then
   exit 1
 fi
 
-# Continue as before
+# Extract GCC tarball
 tar xf "$GCC_TARBALL"
+
+# Normalize extracted directory name if needed (GitHub mirror creates 'gcc-releases-gcc-<ver>')
+if [[ -d "gcc-releases-gcc-${GCC_VER}" ]]; then
+  mv "gcc-releases-gcc-${GCC_VER}" "gcc-${GCC_VER}"
+fi
+
+# Proceed to build directory
 mkdir gcc-build && cd gcc-build
 
 echo "CC = $CC"
