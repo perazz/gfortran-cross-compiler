@@ -40,6 +40,10 @@ if [[ -d "gcc-releases-gcc-${GCC_VER}" ]]; then
   mv "gcc-releases-gcc-${GCC_VER}" "gcc-${GCC_VER}"
 fi
 
+# GCC 14 fix
+cp gcc-${GCC_VER}/libgcc/config/i386/emutls.S \
+   gcc-${GCC_VER}/libgcc/config/i386/emutls_s.S
+
 # Proceed to build directory
 mkdir gcc-build && cd gcc-build
 
