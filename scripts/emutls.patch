@@ -1,5 +1,5 @@
---- libgcc/config/t-darwin.orig	2025-05-29 18:57:32
-+++ libgcc/config/t-darwin	2025-05-29 18:58:26
+--- a/libgcc/config/t-darwin
++++ b/libgcc/config/t-darwin
 @@ -24,6 +24,10 @@
  	$(AR_CREATE_FOR_TARGET) $@ $<
  	$(RANLIB_FOR_TARGET) $@
