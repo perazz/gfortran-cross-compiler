@@ -68,11 +68,14 @@ export LDFLAGS="${LDFLAGS:-} -L$STATIC_ROOT/lib -Wl,-syslibroot,$SDKROOT"
   --enable-languages=c,c++,fortran \
   --disable-shared --enable-static \
   --disable-multilib --disable-nls \
-  --with-gmp="$STATIC_ROOT" \
-  --with-mpfr="$STATIC_ROOT" \
-  --with-mpc="$STATIC_ROOT" \
+  --with-gmp-include="$STATIC_ROOT/include" \
+  --with-gmp-lib="$STATIC_ROOT/lib" \
+  --with-mpfr-include="$STATIC_ROOT/include" \
+  --with-mpfr-lib="$STATIC_ROOT/lib" \
+  --with-mpc-include="$STATIC_ROOT/include" \
+  --with-mpc-lib="$STATIC_ROOT/lib" \
   --with-isl="$STATIC_ROOT" \
-  --with-zlib="$STATIC_ROOT" \
+  --with-system-zlib \
   CFLAGS_FOR_TARGET="-O2" \
   CXXFLAGS_FOR_TARGET="-O2" \
   LDFLAGS_FOR_TARGET="-static"
