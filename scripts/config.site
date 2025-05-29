@@ -19,3 +19,15 @@ ac_cv_func_pstat_getdynamic=no
 
 # Don’t test for <minix/config.h>
 ac_cv_header_minix_config_h=no
+
+# —————————————————————————————————————————————————————
+# Force Autoconf to believe we *do* have real POSIX threads & __thread:
+# —————————————————————————————————————————————————————
+ac_cv_prog_cc_pthread=yes
+ac_cv_lib_pthread_pthread_create=yes
+ac_cv_decl___thread=yes
+
+# —————————————————————————————————————————————————————
+# Force TLS emulation OFF (so configure picks native TLS):
+# —————————————————————————————————————————————————————
+ac_cv_tls_emutls=no
