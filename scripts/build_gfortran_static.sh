@@ -58,7 +58,7 @@ echo 'int main() { auto x = 42; return x; }' | $CXX -std=c++11 -x c++ -o /tmp/te
 # Save original host build flags (e.g. Clang flags from Conda)
 ORIG_CXXFLAGS="$CXXFLAGS"
 
-# locate Apple’s binutils via xcrun
+# locate Apple's binutils via xcrun
 export AS_FOR_TARGET=$(xcrun -f as)
 export LD_FOR_TARGET=$(xcrun -f ld)
 export AR_FOR_TARGET=$(xcrun -f ar)
@@ -66,26 +66,30 @@ export RANLIB_FOR_TARGET=$(xcrun -f ranlib)
 
 export CONFIG_SITE="$SCRIPT_DIR/config.site"
 
+mkdir -p gcc-build && cd gcc-build
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin" \
   --host="${BUILD_ARCH}-apple-darwin" \
-  --target="$TRIPLE" \
-  --prefix="$STATIC_ROOT" \
-  --with-sysroot="$SDKROOT" \
+  --target="${TRIPLE}" \
+  --prefix="${STATIC_ROOT}" \
+  --with-sysroot="${SDKROOT}" \
+  --enable-threads=posix \
+  --disable-multilib \
+  --disable-nls \
+  --disable-shared \
+  --enable-static \
   --enable-languages=c,c++,fortran \
-  --disable-multilib --disable-nls --enable-tls \
-  --disable-shared --enable-static \
-  --with-gmp-include="$STATIC_ROOT/include" \
-  --with-gmp-lib="$STATIC_ROOT/lib" \
-  --with-mpfr-include="$STATIC_ROOT/include" \
-  --with-mpfr-lib="$STATIC_ROOT/lib" \
-  --with-mpc-include="$STATIC_ROOT/include" \
-  --with-mpc-lib="$STATIC_ROOT/lib" \
-  --with-isl="$STATIC_ROOT" \
+  --with-gmp-include="${STATIC_ROOT}/include" \
+  --with-gmp-lib="${STATIC_ROOT}/lib" \
+  --with-mpfr-include="${STATIC_ROOT}/include" \
+  --with-mpfr-lib="${STATIC_ROOT}/lib" \
+  --with-mpc-include="${STATIC_ROOT}/include" \
+  --with-mpc-lib="${STATIC_ROOT}/lib" \
+  --with-isl="${STATIC_ROOT}" \
   --with-system-zlib \
-  CFLAGS_FOR_TARGET="$CFLAGS_FOR_TARGET" \
-  CXXFLAGS_FOR_TARGET="$CXXFLAGS_FOR_TARGET" \
-  LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET" 
+  CFLAGS_FOR_TARGET="${CFLAGS_FOR_TARGET}" \
+  CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET}" \
+  LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET}"
       
 make -j"$(sysctl -n hw.ncpu)" \
   all-gcc \
