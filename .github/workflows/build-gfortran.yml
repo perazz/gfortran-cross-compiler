@@ -65,13 +65,13 @@ jobs:
 
         test ${PIPESTATUS[0]} -eq 0    
         
-    - name: Show gcc-config.log
-      if: failure()                 # run only when a previous step fails
+    - name: Show all config.log files
+      if: failure()
       run: |
-        echo '──── gcc-build/config.log ────'
-        cat gcc-build/config.log || true     
         echo '─── configure-output.log ───'
-        cat configure-output.log || true        
+        cat configure-output.log || true
+        echo '─── Recursively dumping config.log files ───'
+        find gcc-build -name config.log -exec echo '──── {} ────' \; -exec cat {} \; || true
 
     # (2 a) test the compiler ─────────────────────────────────────────────
     - name: Test built gfortran
