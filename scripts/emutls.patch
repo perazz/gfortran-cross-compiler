@@ -1,0 +1,13 @@
+--- a/libgcc/config/t-darwin
++++ b/libgcc/config/t-darwin
+@@ # Make the emutls crt as a convenience lib so that it can be linked
+-libemutls_w.a: emutls_s.o
+-	$(AR_CREATE_FOR_TARGET) $@ $<
+-	$(RANLIB_FOR_TARGET) $@
++libemutls_w.a: emutls_s.o
++	$(AR_CREATE_FOR_TARGET) $@ $<
++	$(RANLIB_FOR_TARGET) $@
++
++# If we donÕt have emutls.S, fall back to compiling emutls_s.o from emutls.c:
++emutls_s.o: $(srcdir)/libgcc/emutls.c
++	$(CC_FOR_TARGET) $(HOST_LIBGCC2_CFLAGS) -c $< -o $@
