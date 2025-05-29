@@ -73,7 +73,7 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   --prefix="$STATIC_ROOT" \
   --with-sysroot="$SDKROOT" \
   --enable-languages=c,c++,fortran \
-  --disable-multilib --disable-nls --disable-tls \
+  --disable-multilib --disable-nls --enable-tls \
   --disable-shared --enable-static \
   --with-gmp-include="$STATIC_ROOT/include" \
   --with-gmp-lib="$STATIC_ROOT/lib" \
