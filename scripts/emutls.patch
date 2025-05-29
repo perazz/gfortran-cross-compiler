@@ -5,7 +5,7 @@
  	$(RANLIB_FOR_TARGET) $@
  
 +# Fallback: if no emutls.S, build emutls_s.o from the C version
-+emutls_s.o: $(srcdir)/libgcc/emutls.c
++emutls_s.o: $(srcdir)/emutls.c
 +	$(CC_FOR_TARGET) $(HOST_LIBGCC2_CFLAGS) -c $< -o $@
 +
  # Patch to __Unwind_Find_Enclosing_Function for Darwin10.
