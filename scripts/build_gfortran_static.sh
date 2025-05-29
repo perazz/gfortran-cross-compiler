@@ -61,12 +61,11 @@ export LDFLAGS="${LDFLAGS:-} -L$STATIC_ROOT/lib -Wl,-syslibroot,$SDKROOT"
 # Save original host build flags (e.g. Clang flags from Conda)
 ORIG_CXXFLAGS="$CXXFLAGS"
 
-# Override for configure step to ensure proper cross target detection (gcc bug)
-# export CXXFLAGS="$CXXFLAGS_FOR_TARGET"
-
 # locate Apple’s binutils via xcrun
 export AS_FOR_TARGET=$(xcrun -f as)
 export LD_FOR_TARGET=$(xcrun -f ld)
+export AR_FOR_TARGET=$(xcrun -f ar)
+export RANLIB_FOR_TARGET=$(xcrun -f ranlib)
 
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin" \
@@ -88,10 +87,19 @@ export LD_FOR_TARGET=$(xcrun -f ld)
   CXXFLAGS_FOR_TARGET="$CXXFLAGS_FOR_TARGET" \
   LDFLAGS_FOR_TARGET="$LDFLAGS_FOR_TARGET" 
   
-# Restore host CXXFLAGS so host tools build correctly
-export CXXFLAGS="$ORIG_CXXFLAGS"
+
     
-make -j"$(sysctl -n hw.ncpu)" all-gcc all-target-libgcc all-target-libgfortran all-target-libquadmath
+make -j"$(sysctl -n hw.ncpu)" \
+  all-gcc \
+  all-target-libgcc \
+  all-target-libgfortran \
+  all-target-libquadmath
+    
+# gcc bug in CXXFLAGS mismatch
+make -j"$(sysctl -n hw.ncpu)" \
+  all-target-libstdc++-v3 \
+  CXXFLAGS="$CXXFLAGS_FOR_TARGET"    
+    
 make install-strip
 cd ..
 
