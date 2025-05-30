@@ -17,7 +17,7 @@
  
 +# Fallback: if no emutls.S, build emutls_s.o from the C version
 +heap-trampoline_s.o: $(srcdir)/heap-trampoline.c
-+        $(CC_FOR_TARGET) $(HOST_LIBGCC2_CFLAGS) -c $< -o $@
++	$(CC_FOR_TARGET) $(HOST_LIBGCC2_CFLAGS) -c $< -o $@
 +
  # Make a heap trampoline support CRT so that it can be linked optionally, use
  # the shared version so that we can link with DSOs.
