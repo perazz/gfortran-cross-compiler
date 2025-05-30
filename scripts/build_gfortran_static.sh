@@ -76,15 +76,16 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET}" \
   LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET}"
       
-echo "🔍 Checking for generated tconfig.h…"
-TCFG=$(find . -type f -name tconfig.h -print -quit)
-if [ -z "$TCFG" ]; then
-  echo "❌ ERROR: tconfig.h not found under the build tree!" >&2
-  find . -maxdepth 4 | sed 's/^/   /'
+# This invokes mkconfig.sh to create config.h, hconfig.h, tconfig.h, tm_p.h, etc.
+make -s gcc/config/tconfig.h
+
+# now you can check for tconfig.h
+if [ ! -f gcc/config/tconfig.h ]; then
+  echo "❌ tconfig.h still missing!" >&2
   exit 1
 else
-  echo "✅ Found tconfig.h at $(cd "$(dirname "$TCFG")" && pwd)/$(basename "$TCFG")"
-fi
+  echo "✅ tconfig.h generated at $(pwd)/gcc/config/tconfig.h"
+fi      
       
 make -j"$(sysctl -n hw.ncpu)" \
   all-gcc \
