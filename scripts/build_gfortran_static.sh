@@ -76,6 +76,21 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET}" \
   LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET}"
       
+echo "🔍 Checking for generated tconfig.h..."
+
+# look for the *one* tconfig.h under the build‐tree gcc/config
+TCFG=$(find . -type f -path '*/gcc/config/tconfig.h' -print -quit)
+
+if [ -z "$TCFG" ]; then
+  echo "❌ ERROR: tconfig.h not found under the build tree!" >&2
+  find . -maxdepth 2 | sed 's/^/   /'
+  exit 1
+else
+  # get absolute path
+  ABS=$(cd "$(dirname "$TCFG")" && pwd)/$(basename "$TCFG")
+  echo "✅ Found tconfig.h at $ABS"
+fi
+      
 make -j"$(sysctl -n hw.ncpu)" \
   all-gcc \
   all-target-libgcc \
@@ -97,7 +112,7 @@ echo ">>> STATIC_ROOT is: $STATIC_ROOT"
 echo ">>> Listing install tree:"
 ls -R "$STATIC_ROOT"
 
-echo ">>> Now packaging into tarball�"
+echo ">>> Now packaging into tarballÉ"
 tarball="gfortran-darwin-${TARGET_ARCH}-${BUILD_ARCH}.static.tar.gz"
 tar -C "$(dirname "$STATIC_ROOT")" -czf "$TOPDIR/$tarball" "$(basename "$STATIC_ROOT")"
 echo "Wrote $TOPDIR/$tarball"
