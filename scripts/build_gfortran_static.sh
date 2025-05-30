@@ -76,17 +76,6 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET}" \
   LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET}"
       
-# This invokes mkconfig.sh to create config.h, hconfig.h, tconfig.h, tm_p.h, etc.
-make -s gcc/config/tconfig.h
-
-# now you can check for tconfig.h
-if [ ! -f gcc/config/tconfig.h ]; then
-  echo "❌ tconfig.h still missing!" >&2
-  exit 1
-else
-  echo "✅ tconfig.h generated at $(pwd)/gcc/config/tconfig.h"
-fi      
-      
 make -j"$(sysctl -n hw.ncpu)" \
   all-gcc \
   all-target-libgcc \
@@ -108,7 +97,7 @@ echo ">>> STATIC_ROOT is: $STATIC_ROOT"
 echo ">>> Listing install tree:"
 ls -R "$STATIC_ROOT"
 
-echo ">>> Now packaging into tarballÉ"
+echo ">>> Now packaging into tarball�"
 tarball="gfortran-darwin-${TARGET_ARCH}-${BUILD_ARCH}.static.tar.gz"
 tar -C "$(dirname "$STATIC_ROOT")" -czf "$TOPDIR/$tarball" "$(basename "$STATIC_ROOT")"
 echo "Wrote $TOPDIR/$tarball"
