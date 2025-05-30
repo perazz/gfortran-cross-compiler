@@ -6,7 +6,7 @@
  
 +# Fallback: if no emutls.S, build emutls_s.o from the C version
 +emutls_s.o: $(srcdir)/emutls.c
-+	$(CC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET) $$TFLAGS $(HOST_LIBGCC2_CFLAGS) -I$(builddir)/../../gcc/config -c $< -o $@
++	$(CC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET) $$TFLAGS $(HOST_LIBGCC2_CFLAGS) -I$(srcdir)/config -c $< -o $@
 +
  # Make the emutls crt as a convenience lib so that it can be linked
  # optionally, use the shared version so that we can link with DSO.
@@ -16,8 +16,8 @@
    -DHEAP_T_ATTR='__attribute__((__weak__,__visibility__("default")))'
  
 +# Fallback: if no emutls.S, build emutls_s.o from the C version
-+heap-trampoline_s.o: $(srcdir)/i386/heap-trampoline.c
-+	$(CC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET) $$TFLAGS $(HOST_LIBGCC2_CFLAGS) -I$(builddir)/../../gcc/config -c $< -o $@
++heap-trampoline_s.o: $(srcdir)/config/i386/heap-trampoline.c
++	$(CC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET) $$TFLAGS $(HOST_LIBGCC2_CFLAGS) -I$(srcdir)/config -c $< -o $@
 +
  # Make a heap trampoline support CRT so that it can be linked optionally, use
  # the shared version so that we can link with DSOs.
