@@ -76,19 +76,14 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET}" \
   LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET}"
       
-echo "🔍 Checking for generated tconfig.h..."
-
-# look for the *one* tconfig.h under the build‐tree gcc/config
-TCFG=$(find . -type f -path '*/gcc/config/tconfig.h' -print -quit)
-
+echo "🔍 Checking for generated tconfig.h…"
+TCFG=$(find . -type f -name tconfig.h -print -quit)
 if [ -z "$TCFG" ]; then
   echo "❌ ERROR: tconfig.h not found under the build tree!" >&2
-  find . -maxdepth 2 | sed 's/^/   /'
+  find . -maxdepth 4 | sed 's/^/   /'
   exit 1
 else
-  # get absolute path
-  ABS=$(cd "$(dirname "$TCFG")" && pwd)/$(basename "$TCFG")
-  echo "✅ Found tconfig.h at $ABS"
+  echo "✅ Found tconfig.h at $(cd "$(dirname "$TCFG")" && pwd)/$(basename "$TCFG")"
 fi
       
 make -j"$(sysctl -n hw.ncpu)" \
