@@ -52,31 +52,6 @@ export RANLIB_FOR_TARGET=$(xcrun -f ranlib)
 
 export CONFIG_SITE="$SCRIPT_DIR/config.site"
 
-echo ../gcc-${GCC_VER}/configure \
-  --build="${BUILD_ARCH}-apple-darwin" \
-  --host="${BUILD_ARCH}-apple-darwin" \
-  --target="${TRIPLE}" \
-  --prefix="${STATIC_ROOT}" \
-  --with-sysroot="${SDKROOT}" \
-  --enable-threads=posix \
-  --disable-multilib \
-  --disable-nls \
-  --disable-shared \
-  --enable-static \
-  --enable-languages=c,c++,fortran \
-  --with-gmp-include="${STATIC_ROOT}/include" \
-  --with-gmp-lib="${STATIC_ROOT}/lib" \
-  --with-mpfr-include="${STATIC_ROOT}/include" \
-  --with-mpfr-lib="${STATIC_ROOT}/lib" \
-  --with-mpc-include="${STATIC_ROOT}/include" \
-  --with-mpc-lib="${STATIC_ROOT}/lib" \
-  --with-isl="${STATIC_ROOT}" \
-  --with-system-zlib \
-  CFLAGS_FOR_TARGET="${CFLAGS_FOR_TARGET}" \
-  CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET}" \
-  LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET}"
-
-
 ../gcc-${GCC_VER}/configure \
   --build="${BUILD_ARCH}-apple-darwin" \
   --host="${BUILD_ARCH}-apple-darwin" \
@@ -89,6 +64,7 @@ echo ../gcc-${GCC_VER}/configure \
   --disable-shared \
   --enable-static \
   --enable-languages=c,c++,fortran \
+  --with-build-system=ninja \
   --with-gmp-include="${STATIC_ROOT}/include" \
   --with-gmp-lib="${STATIC_ROOT}/lib" \
   --with-mpfr-include="${STATIC_ROOT}/include" \
