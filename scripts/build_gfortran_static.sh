@@ -72,7 +72,7 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   CFLAGS_FOR_TARGET="${CFLAGS_FOR_TARGET}" \
   CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET}" \
   LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET}"
-      
+
 make -j"$(sysctl -n hw.ncpu)" \
   all-gcc \
   all-target-libgcc \
