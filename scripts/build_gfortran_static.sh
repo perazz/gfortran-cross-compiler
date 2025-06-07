@@ -26,9 +26,6 @@ fi
 # patches
 patch -p1 -d "gcc-${GCC_VER}" < "$SCRIPT_DIR/emutls.patch"
 
-# Proceed to build directory
-mkdir build && cd build
-
 echo "CC = $CC"
 echo "CXX = $CXX"
 echo "CFLAGS = $CFLAGS"
