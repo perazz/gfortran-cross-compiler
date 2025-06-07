@@ -27,7 +27,7 @@ fi
 patch -p1 -d "gcc-${GCC_VER}" < "$SCRIPT_DIR/emutls.patch"
 
 # Proceed to build directory
-mkdir gcc-build && cd gcc-build
+mkdir build && cd build
 
 echo "CC = $CC"
 echo "CXX = $CXX"
