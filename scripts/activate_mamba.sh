@@ -33,8 +33,8 @@ export SDKROOT="$(xcrun --sdk macosx --show-sdk-path)"
 # ──────────────────────────────────────────
 # 4. Build toolchain settings (host side)
 # ──────────────────────────────────────────
-export CC="$BUILD_ENV_PREFIX/bin/clang"
-export CXX="$BUILD_ENV_PREFIX/bin/clang++"
+export CC="/usr/bin/clang"
+export CXX="/usr/bin/clang++"
 export CFLAGS="-isysroot $SDKROOT -mmacosx-version-min=$DEPLOYMENT_TARGET"
 export CXXFLAGS="$CFLAGS -std=c++11"
 export LDFLAGS="-Wl,-syslibroot,$SDKROOT"
