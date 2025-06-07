@@ -64,7 +64,6 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   --disable-shared \
   --enable-static \
   --enable-languages=c,c++,fortran \
-  --with-build-system=ninja \
   --with-gmp-include="${STATIC_ROOT}/include" \
   --with-gmp-lib="${STATIC_ROOT}/lib" \
   --with-mpfr-include="${STATIC_ROOT}/include" \
