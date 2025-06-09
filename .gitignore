@@ -1,0 +1,10 @@
+.gcc-static-build
+downloads
+gcc-build
+gmp-6.3.0*
+isl-0.26*
+mpc-*
+mpfr*
+static-root
+zlib*
+configure-output.log

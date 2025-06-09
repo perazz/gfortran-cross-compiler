@@ -1,23 +1,32 @@
 --- a/libgcc/config/t-darwin
 +++ b/libgcc/config/t-darwin
-@@ -18,6 +18,10 @@
+@@ -18,6 +18,15 @@
  emutls_s.o: HOST_LIBGCC2_CFLAGS += \
    -DEMUTLS_ATTR='__attribute__((__weak__,__visibility__("default")))'
  
-+# Fallback: if no emutls.S, build emutls_s.o from the C version
-+emutls_s.o: $(srcdir)/emutls.c tconfig.h
-+	$(CC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET) $$TFLAGS $(HOST_LIBGCC2_CFLAGS) -I. -c $< -o $@
++# Darwin targets lack the assembler version; fall back to the C one.
++# Keep the standard dependency so tconfig.h is built automatically.
++emutls_s.o: $(srcdir)/emutls.c $(TCONFIG_H)
++	$(CC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET) $$TFLAGS \
++	    $(HOST_LIBGCC2_CFLAGS) $(INCLUDES) -I$(top_builddir)/gcc \
++	    -DPREFERRED_DEBUGGING_TYPE=DWARF2_DEBUG \
++	    -DDWARF2_DEBUGGING_INFO=1 \
++	    -I$(srcdir)/../gcc/config -I$(srcdir)/../gcc -c $< -o $@
 +
  # Make the emutls crt as a convenience lib so that it can be linked
  # optionally, use the shared version so that we can link with DSO.
  libemutls_w.a: emutls_s.o
-@@ -58,6 +62,10 @@
+@@ -58,6 +62,14 @@
  heap-trampoline_s.o: HOST_LIBGCC2_CFLAGS += \
    -DHEAP_T_ATTR='__attribute__((__weak__,__visibility__("default")))'
  
 +# Fallback: if no emutls.S, build emutls_s.o from the C version
 +heap-trampoline_s.o: $(srcdir)/config/i386/heap-trampoline.c
-+	$(CC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET) $$TFLAGS $(HOST_LIBGCC2_CFLAGS) -I. -c $< -o $@
++	$(CC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET) $$TFLAGS \
++	    $(HOST_LIBGCC2_CFLAGS) $(INCLUDES) \
++	    -I$(srcdir)/../gcc/config -I$(srcdir)/../gcc \
++	    -I$(top_builddir)/gcc \
++	    -c $< -o $@
 +
  # Make a heap trampoline support CRT so that it can be linked optionally, use
  # the shared version so that we can link with DSOs.

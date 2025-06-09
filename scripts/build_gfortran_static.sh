@@ -59,6 +59,7 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   --disable-multilib \
   --disable-nls \
   --disable-shared \
+  --disable-libquadmath \
   --enable-static \
   --enable-languages=c,c++,fortran \
   --with-gmp-include="${STATIC_ROOT}/include" \
@@ -73,18 +74,30 @@ export CONFIG_SITE="$SCRIPT_DIR/config.site"
   CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET}" \
   LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET}"
 
-make -j"$(sysctl -n hw.ncpu)" \
-  all-gcc \
-  all-target-libgcc \
-  all-target-libgfortran \
-  all-target-libquadmath
-    
-# gcc bug in CXXFLAGS mismatch
-make -j"$(sysctl -n hw.ncpu)" \
-  all-target-libstdc++-v3 \
-  CXXFLAGS="$CXXFLAGS_FOR_TARGET"    
-    
+########################################
+# Phase 1 – compiler + libgcc only
+########################################
+make -j"$(sysctl -n hw.ncpu)"  all-gcc
+make -j"$(sysctl -n hw.ncpu)"  all-target-libgcc
+make install-gcc                     # installs xgcc, crt1.o, libgcc*.a
+
+# Make sure the fresh compiler is first on PATH
+export PATH="${STATIC_ROOT}/bin:$PATH"
+
+# Keep them for Linux, nuke them for Darwin
+export LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET//-static/}"
+export CFLAGS_FOR_TARGET="${CFLAGS_FOR_TARGET//-static/}"
+export CXXFLAGS_FOR_TARGET="${CXXFLAGS_FOR_TARGET//-static/}"
+
+########################################
+# Phase 2 – “big” target libraries
+########################################
+make -j"$(sysctl -n hw.ncpu)" all-target-libgfortran CXXFLAGS="$CXXFLAGS_FOR_TARGET"
+make -j"$(sysctl -n hw.ncpu)" all-target-libstdc++-v3 CXXFLAGS="$CXXFLAGS_FOR_TARGET"
+make -j"$(sysctl -n hw.ncpu)" all-target-libbacktrace CXXFLAGS="$CXXFLAGS_FOR_TARGET"
+
 make install-strip
+
 cd ..
 
 find "$STATIC_ROOT" -name '*.dylib' -delete
@@ -94,7 +107,7 @@ echo ">>> STATIC_ROOT is: $STATIC_ROOT"
 echo ">>> Listing install tree:"
 ls -R "$STATIC_ROOT"
 
-echo ">>> Now packaging into tarballÉ"
+echo ">>> Now packaging into tarball"
 tarball="gfortran-darwin-${TARGET_ARCH}-${BUILD_ARCH}.static.tar.gz"
 tar -C "$(dirname "$STATIC_ROOT")" -czf "$TOPDIR/$tarball" "$(basename "$STATIC_ROOT")"
 echo "Wrote $TOPDIR/$tarball"

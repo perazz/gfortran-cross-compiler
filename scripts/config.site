@@ -20,6 +20,9 @@ ac_cv_func_pstat_getdynamic=no
 # Don’t test for <minix/config.h>
 ac_cv_header_minix_config_h=no
 
+# libbacktrace: pretend <features.h> is absent so the glibc check is skipped
+ac_cv_header_features_h=no
+
 # —————————————————————————————————————————————————————
 # Force Autoconf to believe we *do* have real POSIX threads & __thread:
 # —————————————————————————————————————————————————————
